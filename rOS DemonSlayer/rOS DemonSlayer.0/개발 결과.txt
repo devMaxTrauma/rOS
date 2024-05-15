@@ -1,0 +1,9 @@
+rOS DemonSlayer.0 개발 결과.
+성능적 향상이 없음
+오히려 더 느려짐
+rOS Clannad에서 30프레임이 방어가 되던게
+이제 15프레임 불안정 수준으로 떨어짐
+되돌려야 할 듯.
+새롭게 적용한 나머지 요소들은 훌륭하게 작동함
+ROS_SPLASH, startup_chime, SoundEngine 등
+DemonSlayer.1 개발때는 다시 원래 모델로 돌아갈 예정.
