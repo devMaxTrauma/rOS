@@ -30,6 +30,21 @@ for line in labelFile:
 	classLabels.append(label[0].strip())
 print("Labels loaded.")
 
+# load colors
+print("Loading colors...")
+# color file format is "name = "#RRGGBB""
+colorFile = open("rOSClassColor.txt", "r")
+classColors = [[], []]
+for line in colorFile:
+	# split line by "="
+	color = line.split("=")
+	# add color to list
+	classColors[0].append(color[0].strip())
+	classColors[1].append(color[1].strip())
+	if rOSconfig.modelDebugLog:
+		print("name: ", color[0].strip(), " color: ", color[1].strip())
+print("Colors loaded.")
+
 # open camera
 video = cv.VideoCapture(0)
 
@@ -45,7 +60,6 @@ while True:
 		break
 
 	# process frame
-	# todo late
 	# tensorfy frame tf.uint8 tensor with shape [1, height, width, 3] with values in [0, 255]
 	detectorInput = tf.convert_to_tensor(frame, dtype=tf.uint8)[tf.newaxis, ...]
 	detectorOutput = model(detectorInput)
@@ -73,23 +87,58 @@ while True:
 
 		for detectedObject in range(detectedObjectCount):
 			if detectorOutput["detection_scores"][0, detectedObject] > rOSconfig.modelMinProbability:
+				# fill rectangle with color
+				# get class id
+				classId = int(detectorOutput["detection_classes"][0, detectedObject].numpy())
+				# get class name
+				className = classLabels[classId - 1]
+				# get color
+				if className in classColors[0]:
+					colorIndex = classColors[0].index(className)
+					color = classColors[1][colorIndex].strip()
+					# remove # from color
+					color = color[2:]
+					if rOSconfig.modelDebugLog:
+						print("color:", color)
+					# get red, green, blue
+					red = int(color[0:2], 16)
+					green = int(color[2:4], 16)
+					blue = int(color[4:6], 16)
+				else:
+					color = "#000000"
+					blue = 0
+					green = 0
+					red = 0
 				# get box
 				box = detectorOutput["detection_boxes"][0, detectedObject].numpy()
-				# get class
-				classId = int(detectorOutput["detection_classes"][0, detectedObject].numpy())
-				# get score
-				score = float(detectorOutput["detection_scores"][0, detectedObject].numpy())
-				# get label
-				label = classLabels[classId - 1]
-				# draw box
-				processedFrame = cv.rectangle(processedFrame,
-											  (int(box[1] * frame.shape[1]), int(box[0] * frame.shape[0])),
-											  (int(box[3] * frame.shape[1]), int(box[2] * frame.shape[0])), (0, 255, 0),
-											  2)
-				# draw label
-				processedFrame = cv.putText(processedFrame, label,
-											(int(box[1] * frame.shape[1]), int(box[0] * frame.shape[0])),
-											cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+				# get box coordinates
+				ymin, xmin, ymax, xmax = box
+				# get frame size
+				height, width, channels = frame.shape
+				# get box coordinates
+				left = int(xmin * width)
+				top = int(ymin * height)
+				right = int(xmax * width)
+				bottom = int(ymax * height)
+				# fill rectangle
+				cv.rectangle(processedFrame, (left, top), (right, bottom), (blue, green, red), -1)
+				# draw label at center of rectangle
+				label = className + " " + str(
+					int(detectorOutput["detection_scores"][0, detectedObject].numpy() * 100)) + "%"
+				# get label size
+				labelSize = cv.getTextSize(label, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+				# get label width and height
+				labelWidth = labelSize[0][0]
+				labelHeight = labelSize[0][1]
+				# get label coordinates
+				labelLeft = left + (right - left) // 2 - labelWidth // 2
+				labelTop = top + (bottom - top) // 2 + labelHeight // 2
+				# reverse color
+				blue = 255 - blue
+				green = 255 - green
+				red = 255 - red
+				# draw label reverse color of background
+				cv.putText(processedFrame, label, (labelLeft, labelTop), cv.FONT_HERSHEY_SIMPLEX, 0.5, (blue, green, red), 1)
 
 		cv.imshow("rOS", processedFrame)
 	# todo late
