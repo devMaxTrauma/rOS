@@ -48,11 +48,11 @@ while True:
 
 	if rKernel.get_key("ros_camera_device").value == "macbook pro":
 		frame = rKernel.cv.resize(frame, (rKernel.get_key("macbook_pro_camera_resolution_width_limit").value,
-                                          rKernel.get_key("macbook_pro_camera_resolution_height_limit").value))
+										  rKernel.get_key("macbook_pro_camera_resolution_height_limit").value))
 		processing_frame = frame.copy()
 	elif rKernel.get_key("ros_camera_device").value == "iphone":
 		frame = rKernel.cv.resize(frame, (rKernel.get_key("iphone_12_mini_camera_resolution_width_limit").value,
-                                          rKernel.get_key("iphone_12_mini_camera_resolution_height_limit").value))
+										  rKernel.get_key("iphone_12_mini_camera_resolution_height_limit").value))
 		processing_frame = frame.copy()
 	else:
 		rKernel.make_error_message("Camera device not recognized.", level="Key Error")
@@ -87,63 +87,63 @@ while True:
 
 				if rKernel.get_key("ros_opencv_fill_rectangle_detected_object_mode").value == "line":
 					processing_frame = rKernel.cv.rectangle(processing_frame,
-                                                            (
+															(
 																int(box[1] * frame.shape[1]),
 																int(box[0] * frame.shape[0])),
-                                                            (
+															(
 																int(box[3] * frame.shape[1]),
 																int(box[2] * frame.shape[0])),
-                                                            (blue, green, red),
-                                                            2)
+															(blue, green, red),
+															2)
 					red = 255 - red
 					green = 255 - green
 					blue = 255 - blue
 
 					processing_frame = rKernel.cv.putText(processing_frame, class_name,
-                                                          (int(box[1] * frame.shape[1]), int(box[0] * frame.shape[0])),
-                                                          rKernel.cv.FONT_HERSHEY_SIMPLEX,
-                                                          rKernel.get_key("ros_opencv_label_font_size").value, (
+														  (int(box[1] * frame.shape[1]), int(box[0] * frame.shape[0])),
+														  rKernel.cv.FONT_HERSHEY_SIMPLEX,
+														  rKernel.get_key("ros_opencv_label_font_size").value, (
 															  blue, green, red),
-                                                          rKernel.get_key("ros_opencv_label_font_thickness").value)
+														  rKernel.get_key("ros_opencv_label_font_thickness").value)
 				elif rKernel.get_key("ros_opencv_fill_rectangle_detected_object_mode").value == "fill":
 					# draw rectangle
 					processing_frame = rKernel.cv.rectangle(processing_frame,
-                                                            (
+															(
 																int(box[1] * frame.shape[1]),
 																int(box[0] * frame.shape[0])),
-                                                            (
+															(
 																int(box[3] * frame.shape[1]),
 																int(box[2] * frame.shape[0])),
-                                                            (blue, green, red),
-                                                            -1)
+															(blue, green, red),
+															-1)
 					red = 255 - red
 					green = 255 - green
 					blue = 255 - blue
 					# draw line
 					processing_frame = rKernel.cv.rectangle(processing_frame,
-                                                            (
+															(
 																int(box[1] * frame.shape[1]),
 																int(box[0] * frame.shape[0])),
-                                                            (
+															(
 																int(box[3] * frame.shape[1]),
 																int(box[2] * frame.shape[0])),
-                                                            (blue, green, red),
-                                                            rKernel.get_key(
+															(blue, green, red),
+															rKernel.get_key(
 																"ros_opencv_line_width_detected_object").value)
 
 					# draw text on center of box
 					text_width, text_height = rKernel.cv.getTextSize(class_name, rKernel.cv.FONT_HERSHEY_SIMPLEX,
-                                                                     rKernel.get_key(
+																	 rKernel.get_key(
 																		 "ros_opencv_label_font_size").value,
-                                                                     rKernel.get_key(
+																	 rKernel.get_key(
 																		 "ros_opencv_label_font_thickness").value)[0]
 					text_x = int((box[1] * frame.shape[1] + box[3] * frame.shape[1]) / 2 - text_width / 2)
 					text_y = int((box[0] * frame.shape[0] + box[2] * frame.shape[0]) / 2 + text_height / 2)
 					processing_frame = rKernel.cv.putText(processing_frame, class_name, (text_x, text_y),
-                                                          rKernel.cv.FONT_HERSHEY_SIMPLEX,
-                                                          rKernel.get_key("ros_opencv_label_font_size").value, (
+														  rKernel.cv.FONT_HERSHEY_SIMPLEX,
+														  rKernel.get_key("ros_opencv_label_font_size").value, (
 															  blue, green, red),
-                                                          rKernel.get_key("ros_opencv_label_font_thickness").value)
+														  rKernel.get_key("ros_opencv_label_font_thickness").value)
 
 					if rKernel.get_key("ros_distance_calculating_enabled").value:
 						box_width = int((box[3] - box[1]) * frame.shape[1])
@@ -153,18 +153,18 @@ while True:
 						if rKernel.get_key("ros_distance_display_enabled").value and class_average_width != -1.0:
 							if rKernel.get_key("ros_distance_unit").value == "meter":
 								distance = class_average_width/(box_width / (
-                                            rKernel.get_key("ros_distance_calculation_constant").value * 2))
+										rKernel.get_key("ros_distance_calculation_constant").value * 2))
 								class_distance = distance
 								if class_distance >= 1:
 									class_distance_output = str(round(class_distance, 2)) + "m"
 								elif class_distance < 1:
 									class_distance_output = str(round(class_distance * 100, 2)) + "cm"
 								processing_frame = rKernel.cv.putText(processing_frame, class_distance_output,
-                                                                      (text_x, text_y + text_height),
-                                                                      rKernel.cv.FONT_HERSHEY_SIMPLEX,
-                                                                      rKernel.get_key("ros_opencv_label_font_size").value, (
+																	  (text_x, text_y + text_height),
+																	  rKernel.cv.FONT_HERSHEY_SIMPLEX,
+																	  rKernel.get_key("ros_opencv_label_font_size").value, (
 																	  blue, green, red),
-                                                                      rKernel.get_key("ros_opencv_label_font_thickness").value)
+																	  rKernel.get_key("ros_opencv_label_font_thickness").value)
 
 	rKernel.cv.imshow("rOS", processing_frame)
 
