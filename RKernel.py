@@ -1,7 +1,8 @@
 class RKernel:
-    import time
     import tensorflow as tf
     import cv2 as cv
+    import numpy as np
+    import time
 
     def __init__(self):
         self.__boot__()
@@ -11,6 +12,8 @@ class RKernel:
         self.splash_screen = self.cv.imread("ROS_SPLASH.png")
         self.__load_sound__()
         self.__load_key__()
+        self.__load_label__()
+        self.__load_color__()
         self.__load_model__()
         self.key_engine.set_key("ROSIsOn", True)
         print("rKernel booted up.")
@@ -25,9 +28,19 @@ class RKernel:
         self.sound_engine = RSound()
         print("Sound engine loaded.")
 
+    def __load_label__(self):
+        print("Loading label engine...")
+        self.label_engine = RLabel()
+        print("Label engine loaded.")
+
+    def __load_color__(self):
+        print("Loading color engine...")
+        self.color_engine = RColor()
+        print("Color engine loaded.")
+
     def __load_model__(self):
         print("Loading model...")
-        self.model = self.tf.lite.Interpreter(model_path='yolov5sdynm_range.tflite')
+        self.model = self.tf.lite.Interpreter(model_path='model.tflite')
         self.model.allocate_tensors()
         self.model_input_details = self.model.get_input_details()
         self.model_output_details = self.model.get_output_details()
@@ -37,25 +50,18 @@ class RKernel:
         print("Shutting down rKernel...")
         self.cv.destroyAllWindows()
         self.sound_engine.pygame.quit()
+        self.label_engine.erase_memory()
+        self.color_engine.erase_memory()
         self.key_engine.set_key("ROSIsOn", False)
         print("rKernel shut down.")
 
     def process_frame(self, frame):
         if self.model is None:
             return None
-        input_shape = self.model_input_details[0]['shape']
-        frame = self.cv.resize(frame, (input_shape[1], input_shape[2]))
         frame = self.cv.cvtColor(frame, self.cv.COLOR_BGR2RGB)
-        frame = self.tf.convert_to_tensor(frame)
-        # tensor value of float32
-        frame = self.tf.cast(frame, self.tf.float32)
-        frame = frame / 255.0
-        frame = frame.numpy()
-        frame = frame.reshape(input_shape)
+        frame = self.np.expand_dims(frame, axis=0)
         self.model.set_tensor(self.model_input_details[0]['index'], frame)
         self.model.invoke()
-        output_data = self.model.get_tensor(self.model_output_details[0]['index'])
-        return output_data
 
 
 class RKey:
@@ -189,9 +195,8 @@ class RKey:
             print("| " + key_name + " " * (name_max_len - len(key_name)) + " | " + str(
                 self.keys[key_name]["type"]) + " " * (
                           type_max_len - len(str(self.keys[key_name]["type"]))) + " | " + str(
-                self.keys[key_name]["value"]) + " " * (
-                          value_max_len - len(str(self.keys[key_name]["value"]))) + " | " + self.keys[key_name][
-                      "comment"] + " " * (comment_max_len - len(self.keys[key_name]["comment"])) + " |")
+                self.keys[key_name]["value"]) + " " * (value_max_len - len(str(self.keys[key_name]["value"]))) + " | " +
+                  self.keys[key_name]["comment"] + " " * (comment_max_len - len(self.keys[key_name]["comment"])) + " |")
         print("+" + "-" * (name_max_len + 2) + "+" + "-" * (type_max_len + 2) + "+" + "-" * (
                 value_max_len + 2) + "+" + "-" * (comment_max_len + 2) + "+")
 
@@ -228,3 +233,143 @@ class RSound:
     def stop(self, channel):
         channel.stop()
         self.channels.remove(channel)
+
+
+class RLabel:
+    def __init__(self):
+        self.labels = {}
+        self.__load_labels__()
+
+    def __load_labels__(self):
+        try:
+            r_label_file = open("RClassLabelEn.RCL", "r", encoding="utf-8")
+            label_list = r_label_file.readlines()
+            r_label_file.close()
+            for one_label in label_list:
+                if one_label == "\n":
+                    continue
+                # label format: label = index % average_width
+                label_data = one_label.split("=")
+                label_value = label_data[0].strip()
+                label_data = label_data[1].split("%")
+                label_index = int(label_data[0].strip())
+                if len(label_data[1].strip()) > 0:
+                    label_average_width = float(label_data[1].strip())
+                else:
+                    label_average_width = -1.0
+                self.labels[label_index] = {"value": label_value, "average_width": label_average_width}
+        except FileNotFoundError:
+            print("RClassLabelEn.RCL not found.")
+            return
+        except Exception as e:
+            print("Error loading labels.")
+            print(e)
+            exit(999)
+
+        label_max_len = len("Label")
+        index_max_len = len("Index")
+        average_width_max_len = len("Average Width")
+        for label_index in self.labels:
+            label_max_len = max(label_max_len, len(self.labels[label_index]["value"]))
+            index_max_len = max(index_max_len, len(str(label_index)))
+            if self.labels[label_index]["average_width"] == -1.0:
+                pass
+            else:
+                average_width_max_len = max(average_width_max_len, len(str(self.labels[label_index]["average_width"])))
+
+        print("+" + "-" * (label_max_len + 2) + "+" + "-" * (index_max_len + 2) + "+" + "-" * (
+                    average_width_max_len + 2) + "+")
+        print("| Label" + " " * (label_max_len - 5) + " | Index" + " " * (
+                    index_max_len - 5) + " | Average Width" + " " * (average_width_max_len - 12) + " |")
+        print("+" + "-" * (label_max_len + 2) + "+" + "-" * (index_max_len + 2) + "+" + "-" * (
+                    average_width_max_len + 2) + "+")
+        for label_index in self.labels:
+            average_width_specific = self.labels[label_index]["average_width"]
+            if average_width_specific == -1.0:
+                average_width_specific = ""
+            print("| " + self.labels[label_index]["value"] + " " * (
+                        label_max_len - len(self.labels[label_index]["value"])) + " | " + str(label_index) + " " * (
+                              index_max_len - len(str(label_index))) + " | " + str(
+                average_width_specific) + " " * (
+                              average_width_max_len - len(str(average_width_specific))) + " |")
+        print("+" + "-" * (label_max_len + 2) + "+" + "-" * (index_max_len + 2) + "+" + "-" * (
+                    average_width_max_len + 2) + "+")
+
+    def get_label(self, label_index):
+        if label_index in self.labels:
+            return self.labels[label_index]
+        else:
+            return None
+
+    def erase_memory(self):
+        print("Erasing label memory...")
+        self.labels = {}
+        print("Label memory erased.")
+
+
+class RColor:
+    def __init__(self):
+        self.colors = {}
+        self.__load_colors__()
+
+    def __load_colors__(self):
+        try:
+            r_color_file = open("RClassColor.RCC", "r", encoding="utf-8")
+            color_list = r_color_file.readlines()
+            r_color_file.close()
+            for one_color in color_list:
+                if one_color == "\n":
+                    continue
+                # color format: label_name = #RRGGBB
+                color_data = one_color.split("=")
+                color_value = color_data[0].strip()
+                color_data = color_data[1].strip()
+                color_r = int(color_data[1:3], 16)
+                color_g = int(color_data[3:5], 16)
+                color_b = int(color_data[5:7], 16)
+                # rgb2bgr
+                self.colors[color_value] = (color_b, color_g, color_r)
+        except FileNotFoundError:
+            print("RColor.RCL not found.")
+            return
+        except Exception as e:
+            print("Error loading colors.")
+            print(e)
+            exit(999)
+
+        label_name_max_len = len("Label Name")
+        red_max_len = len("Red")
+        green_max_len = len("Green")
+        blue_max_len = len("Blue")
+        for color_value in self.colors:
+            label_name_max_len = max(label_name_max_len, len(color_value))
+            red_max_len = max(red_max_len, len(str(self.colors[color_value][2])))
+            green_max_len = max(green_max_len, len(str(self.colors[color_value][1])))
+            blue_max_len = max(blue_max_len, len(str(self.colors[color_value][0])))
+        print("+" + "-" * (label_name_max_len + 2) + "+" + "-" * (red_max_len + 2) + "+" + "-" * (
+                    green_max_len + 2) + "+" + "-" * (blue_max_len + 2) + "+")
+        print(
+            "| Label Name" + " " * (label_name_max_len - 10) + " | Red" + " " * (red_max_len - 3) + " | Green" + " " * (
+                        green_max_len - 5) + " | Blue" + " " * (blue_max_len - 4) + " |")
+        print("+" + "-" * (label_name_max_len + 2) + "+" + "-" * (red_max_len + 2) + "+" + "-" * (
+                    green_max_len + 2) + "+" + "-" * (blue_max_len + 2) + "+")
+        for color_value in self.colors:
+            print("| " + color_value + " " * (label_name_max_len - len(color_value)) + " | " + str(
+                self.colors[color_value][2]) + " " * (
+                              red_max_len - len(str(self.colors[color_value][2]))) + " | " + str(
+                self.colors[color_value][1]) + " " * (
+                              green_max_len - len(str(self.colors[color_value][1]))) + " | " + str(
+                self.colors[color_value][0]) + " " * (blue_max_len - len(str(self.colors[color_value][0]))) + " |")
+        print("+" + "-" * (label_name_max_len + 2) + "+" + "-" * (red_max_len + 2) + "+" + "-" * (
+                    green_max_len + 2) + "+" + "-" * (blue_max_len + 2) + "+")
+
+    def get_color(self, color_value):
+        if color_value in self.colors:
+            return self.colors[color_value]
+        else:
+            return self.colors["Else"]
+
+    def erase_memory(self):
+        print("Erasing color memory...")
+        self.colors = {}
+        print("Color memory erased.")
