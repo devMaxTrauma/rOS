@@ -1,4 +1,4 @@
 # rOS Bleach
 Second Iteration of rOS
 
-First Release of rOS Bleach
+Second Release of rOS Bleach
