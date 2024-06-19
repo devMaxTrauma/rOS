@@ -7,7 +7,12 @@ fps_history = []
 
 # resize window 360 360
 rk.cv.namedWindow("ROS", rk.cv.WINDOW_NORMAL)
-rk.cv.resizeWindow("ROS", 320, 320)
+if rk.key_engine.get_key("ROSARDisplayEnabled").get("value"):
+    ar_width = rk.key_engine.get_key("ARDisplayWidth").get("value")
+    ar_height = rk.key_engine.get_key("ARDisplayHeight").get("value")
+    rk.cv.resizeWindow("ROS", ar_width, ar_height)
+else:
+    rk.cv.resizeWindow("ROS", 320, 320)
 
 boot_start_time = rk.time.time()
 while rk.time.time() - boot_start_time < 5:
@@ -53,21 +58,31 @@ while True:
                 box = boxes[i] * [320, 320, 320, 320]
                 if rk.key_engine.get_key("ROSMindDisplayWay").get("value") == "filled box":
                     inverted_color = (255 - class_color[0], 255 - class_color[1], 255 - class_color[2])
-                    #outer line
+                    # outer line
                     rk.cv.rectangle(new_frame, (int(box[1]), int(box[0]), int(box[3]), int(box[2])), inverted_color, 2)
-                    #inner box
+                    # inner box
                     rk.cv.rectangle(new_frame, (int(box[1]), int(box[0])), (int(box[3]), int(box[2])), class_color, -1)
                     # put text center of the box
-                    text_size = rk.cv.getTextSize(class_name, rk.cv
-                                                    .FONT_HERSHEY_SIMPLEX, 0.5, 2)[0]
+                    text_size = rk.cv.getTextSize(class_name, rk.cv.FONT_HERSHEY_SIMPLEX, 0.5, 2)[0]
                     text_x = int((box[1] + box[3]) / 2 - text_size[0] / 2)
                     text_y = int((box[0] + box[2]) / 2 + text_size[1] / 2)
                     rk.cv.putText(new_frame, class_name, (text_x, text_y), rk.cv.FONT_HERSHEY_SIMPLEX, 0.5,
                                   inverted_color, 2)
+
                 elif rk.key_engine.get_key("ROSMindDisplayWay").get("value") == "outlined box":
                     rk.cv.rectangle(new_frame, (int(box[1]), int(box[0])), (int(box[3]), int(box[2])), class_color, 2)
                     rk.cv.putText(new_frame, class_name, (int(box[1]), int(box[0])), rk.cv.FONT_HERSHEY_SIMPLEX, 0.5,
                                   class_color, 2)
+
+                if rk.key_engine.get_key("DistanceDisplayEnabled").get("value"):
+                    object_average_width = rk.label_engine.get_label(int(classes[i] + 1)).get("average_width")
+                    box_width_pixel = box[3] - box[1]
+                    distance = rk.calculate_distance(object_average_width, box_width_pixel)
+                    if rk.key_engine.get_key("DistanceDisplayWay").get("value") == "invertedColorInBox":
+                        inverted_color = (255 - class_color[0], 255 - class_color[1], 255 - class_color[2])
+                        # draw text in center of the box
+                        rk.cv.putText(new_frame, distance, (text_x, text_y + 20), rk.cv.FONT_HERSHEY_SIMPLEX, 0.5,
+                                      inverted_color, 2)
 
     if rk.key_engine.get_key("ROSDisplayFPSEnable").get("value"):
         update_time = rk.time.time()
@@ -79,7 +94,10 @@ while True:
         avg_fps = np.mean(fps_history)
         rk.cv.putText(new_frame, f"FPS: {avg_fps:.2f}", (10, 20), rk.cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-    rk.cv.imshow("ROS", new_frame)
+    if rk.key_engine.get_key("ROSARDisplayEnabled").get("value"):
+        new_frame = rk.make_ar_frame(new_frame)
+
+    rk.cv.imshow("ROS", new_frame) 
 
     if rk.cv.waitKey(1) & 0xFF == 27:
         break

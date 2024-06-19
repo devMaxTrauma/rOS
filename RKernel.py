@@ -15,6 +15,7 @@ class RKernel:
         self.__load_label__()
         self.__load_color__()
         self.__load_model__()
+        # self.__load_socket__()
         self.key_engine.set_key("ROSIsOn", True)
         print("rKernel booted up.")
 
@@ -46,6 +47,13 @@ class RKernel:
         self.model_output_details = self.model.get_output_details()
         print("Model loaded.")
 
+    # def __load_socket__(self):
+    #     print("Loading socket...")
+    #     ip = self.key_engine.get_key("SLDDeviceIP").get("value")
+    #     port = self.key_engine.get_key("SLDDevicePort").get("value")
+    #     self.socket = RSocket(ip, port)
+    #     print("Socket loaded.")
+
     def shutdown(self):
         print("Shutting down rKernel...")
         self.cv.destroyAllWindows()
@@ -62,6 +70,65 @@ class RKernel:
         frame = self.np.expand_dims(frame, axis=0)
         self.model.set_tensor(self.model_input_details[0]['index'], frame)
         self.model.invoke()
+
+    def calculate_distance(self, object_average_width, box_width_pixel):
+        distance_calculate_constance = self.key_engine.get_key("ROSObjectDistanceCalculateConstant").get("value")
+        if object_average_width == -1.0:
+            return str("N/A")
+
+        distance_in_meter = object_average_width / (box_width_pixel / distance_calculate_constance)
+        unit = self.key_engine.get_key("DistanceUnit").get("value")
+        if unit == "SI":
+            if distance_in_meter < 1:
+                return str(round(distance_in_meter * 100, 2)) + "cm"
+            elif distance_in_meter < 1000:
+                return str(round(distance_in_meter, 2)) + "m"
+            else:
+                return str(round(distance_in_meter / 1000, 2)) + "km"
+            pass
+
+        elif unit == "US":
+            if distance_in_meter < 0.3048:
+                return str(round(distance_in_meter * 39.3701, 2)) + "in"
+            elif distance_in_meter < 0.9144:
+                return str(round(distance_in_meter * 3.28084, 2)) + "ft"
+            elif distance_in_meter < 1609.34:
+                return str(round(distance_in_meter * 1.09361, 2)) + "yd"
+            else:
+                return str(round(distance_in_meter / 1609.34, 2)) + "mi"
+            pass
+
+    def make_ar_frame(self, frame):
+        # frame input resolution: 320 320
+        ar_width = self.key_engine.get_key("ARDisplayWidth").get("value")
+        ar_height = self.key_engine.get_key("ARDisplayHeight").get("value")
+        ar_ppi = self.key_engine.get_key("ARDisplayPPI").get("value")
+        user_eye_distance = self.key_engine.get_key("AREyeDistance").get("value")  # meter
+
+        max_frame_size_per_eye = min(ar_height, ar_width // 2)
+
+        ar_screen = self.np.zeros((ar_height, ar_width, 3), self.np.uint8)
+        ar_screen = self.cv.cvtColor(ar_screen, self.cv.COLOR_BGR2RGB)
+
+        eye_distance_to_inch = user_eye_distance * 39.3701
+        eye_distance_to_pixel = int(eye_distance_to_inch * ar_ppi)
+
+        left_eye_center_x = (ar_width // 2) - (eye_distance_to_pixel // 2)
+        right_eye_center_x = (ar_width // 2) + (eye_distance_to_pixel // 2)
+        eye_center_y = ar_height // 2
+
+        left_eye_start_x = left_eye_center_x - (320 // 2)
+        right_eye_start_x = right_eye_center_x - (320 // 2)
+        eye_start_y = eye_center_y - (320 // 2)
+
+        preferred_eye = self.key_engine.get_key("ARPreferredEye").get("value")
+        if preferred_eye == "left" or eye_distance_to_pixel >= 320:
+            ar_screen[eye_start_y:eye_start_y + 320, left_eye_start_x:left_eye_start_x + 320] = frame
+
+        if preferred_eye == "right" or eye_distance_to_pixel >= 320:
+            ar_screen[eye_start_y:eye_start_y + 320, right_eye_start_x:right_eye_start_x + 320] = frame
+
+        return ar_screen
 
 
 class RKey:
@@ -278,22 +345,22 @@ class RLabel:
                 average_width_max_len = max(average_width_max_len, len(str(self.labels[label_index]["average_width"])))
 
         print("+" + "-" * (label_max_len + 2) + "+" + "-" * (index_max_len + 2) + "+" + "-" * (
-                    average_width_max_len + 2) + "+")
+                average_width_max_len + 2) + "+")
         print("| Label" + " " * (label_max_len - 5) + " | Index" + " " * (
-                    index_max_len - 5) + " | Average Width" + " " * (average_width_max_len - 12) + " |")
+                index_max_len - 5) + " | Average Width" + " " * (average_width_max_len - 12) + " |")
         print("+" + "-" * (label_max_len + 2) + "+" + "-" * (index_max_len + 2) + "+" + "-" * (
-                    average_width_max_len + 2) + "+")
+                average_width_max_len + 2) + "+")
         for label_index in self.labels:
             average_width_specific = self.labels[label_index]["average_width"]
             if average_width_specific == -1.0:
                 average_width_specific = ""
             print("| " + self.labels[label_index]["value"] + " " * (
-                        label_max_len - len(self.labels[label_index]["value"])) + " | " + str(label_index) + " " * (
-                              index_max_len - len(str(label_index))) + " | " + str(
+                    label_max_len - len(self.labels[label_index]["value"])) + " | " + str(label_index) + " " * (
+                          index_max_len - len(str(label_index))) + " | " + str(
                 average_width_specific) + " " * (
-                              average_width_max_len - len(str(average_width_specific))) + " |")
+                          average_width_max_len - len(str(average_width_specific))) + " |")
         print("+" + "-" * (label_max_len + 2) + "+" + "-" * (index_max_len + 2) + "+" + "-" * (
-                    average_width_max_len + 2) + "+")
+                average_width_max_len + 2) + "+")
 
     def get_label(self, label_index):
         if label_index in self.labels:
@@ -347,21 +414,21 @@ class RColor:
             green_max_len = max(green_max_len, len(str(self.colors[color_value][1])))
             blue_max_len = max(blue_max_len, len(str(self.colors[color_value][0])))
         print("+" + "-" * (label_name_max_len + 2) + "+" + "-" * (red_max_len + 2) + "+" + "-" * (
-                    green_max_len + 2) + "+" + "-" * (blue_max_len + 2) + "+")
+                green_max_len + 2) + "+" + "-" * (blue_max_len + 2) + "+")
         print(
             "| Label Name" + " " * (label_name_max_len - 10) + " | Red" + " " * (red_max_len - 3) + " | Green" + " " * (
-                        green_max_len - 5) + " | Blue" + " " * (blue_max_len - 4) + " |")
+                    green_max_len - 5) + " | Blue" + " " * (blue_max_len - 4) + " |")
         print("+" + "-" * (label_name_max_len + 2) + "+" + "-" * (red_max_len + 2) + "+" + "-" * (
-                    green_max_len + 2) + "+" + "-" * (blue_max_len + 2) + "+")
+                green_max_len + 2) + "+" + "-" * (blue_max_len + 2) + "+")
         for color_value in self.colors:
             print("| " + color_value + " " * (label_name_max_len - len(color_value)) + " | " + str(
                 self.colors[color_value][2]) + " " * (
-                              red_max_len - len(str(self.colors[color_value][2]))) + " | " + str(
+                          red_max_len - len(str(self.colors[color_value][2]))) + " | " + str(
                 self.colors[color_value][1]) + " " * (
-                              green_max_len - len(str(self.colors[color_value][1]))) + " | " + str(
+                          green_max_len - len(str(self.colors[color_value][1]))) + " | " + str(
                 self.colors[color_value][0]) + " " * (blue_max_len - len(str(self.colors[color_value][0]))) + " |")
         print("+" + "-" * (label_name_max_len + 2) + "+" + "-" * (red_max_len + 2) + "+" + "-" * (
-                    green_max_len + 2) + "+" + "-" * (blue_max_len + 2) + "+")
+                green_max_len + 2) + "+" + "-" * (blue_max_len + 2) + "+")
 
     def get_color(self, color_value):
         if color_value in self.colors:
@@ -373,3 +440,27 @@ class RColor:
         print("Erasing color memory...")
         self.colors = {}
         print("Color memory erased.")
+
+# class RSocket:
+#     # this code is for socket transfer
+#     import socket
+#
+#     def __init__(self, ip, port):
+#         print("Socket connecting to " + ip + ":" + str(port) + "...")
+#         self.ip = ip
+#         self.port = port
+#         self.socket = self.socket.socket(self.socket.AF_INET, self.socket.SOCK_STREAM)
+#         print("Socket created.")
+#         self.socket.connect((self.ip, self.port))
+#         print("Socket connected to " + self.ip + ":" + str(self.port) + ".")
+#         self.socket.setblocking(False)
+#
+#     def send(self, data):
+#         self.socket.send(data)
+#
+#     def receive(self):
+#         return self.socket.recv(1024)
+#
+#     def close(self):
+#         self.socket.close()
+#         print("Socket closed.")
