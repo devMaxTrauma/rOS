@@ -1,9 +1,9 @@
 <name> ROSVersion </> <type> str </> <value> DemonSlayer.2 </> <comment> ROSVersion </>
-<name> ROSIsOn </> <type> bool </> <value> False </> <comment> ROSIsOnNoticeROS is shutdown properly </>
-<name> BootDebugLogOn </> <type> bool </> <value> True </> <comment> BootDebugLogOnNoticeBoot debug log is on or off </>
-<name> RKeySetDebugLogOn </> <type> bool </> <value> True </> <comment> RKeySetDebugLogOnNoticeRKeySet debug log is on or off </>
-<name> RKeySaveDebugLogOn </> <type> bool </> <value> True </> <comment> RKeySaveDebugLogOnNoticeRKeySave debug log is on or off </>
-<name> CameraDevice </> <type> str </> <value> macbook pro </> <comment> CameraDeviceName </>
+<name> ROSIsOn </> <type> bool </> <value> True </> <comment> ROSIsOnNoticeROS is shutdown properly </>
+<name> BootDebugLogOn </> <type> bool </> <value> False </> <comment> BootDebugLogOnNoticeBoot debug log is on or off </>
+<name> RKeySetDebugLogOn </> <type> bool </> <value> False </> <comment> RKeySetDebugLogOnNoticeRKeySet debug log is on or off </>
+<name> RKeySaveDebugLogOn </> <type> bool </> <value> False </> <comment> RKeySaveDebugLogOnNoticeRKeySave debug log is on or off </>
+<name> CameraDevice </> <type> str </> <value> raspberry pi </> <comment> CameraDeviceName </>
 <name> ROSModelActive </> <type> bool </> <value> True </> <comment> ROSModelActiveNoticeROS model is active or not </>
 <name> ROSMindDisplayWay </> <type> str </> <value> filled box </> <comment> ROSMindDisplayWayNoticeROS mind display way </>
 <name> ROSDisplayFPSEnable </> <type> bool </> <value> True </> <comment> ROSDisplayFPSEnableNoticeROS display FPS is enable or not </>

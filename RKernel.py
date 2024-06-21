@@ -3,6 +3,7 @@ class RKernel:
     import cv2 as cv
     import numpy as np
     import time
+    import picamera2
 
     def __init__(self):
         self.__boot__()

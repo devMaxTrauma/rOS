@@ -23,15 +23,32 @@ if rk.key_engine.get_key("CameraDevice").get("value") == "macbook pro":
     camera = rk.cv.VideoCapture(0)
 elif rk.key_engine.get_key("CameraDevice").get("value") == "iphone":
     camera = rk.cv.VideoCapture(1)
+elif rk.key_engine.get_key("CameraDevice").get("value") == "raspberry pi":
+    normalSize = (640, 480)
+    lowresSize = (320, 240)
+    camera = rk.picamera2.Picamera2()
+    camera.start_preview(rk.picamera2.Preview.QTGL)
+    config = camera.create_preview_configuration(main={"size": normalSize},
+                                                 lores={"size": lowresSize, "format": "YUV420"})
+    camera.configure(config)
+    stride = camera.stream_configuration("lores")["stride"]
+    # camera.post_callback = Draw
+    camera.start()
 else:
     print("warning! Invalid camera device. Using default device.")
     camera = rk.cv.VideoCapture(0)
 
 last_update_time = rk.time.time()
 while True:
-    capture_success, frame = camera.read()
-    if not capture_success:
-        break
+    if rk.key_engine.get_key("CameraDevice").get("value") == "raspberry pi":
+        frame = camera.capture_buffer("lores")
+        frame = frame[:stride * lowresSize[1]].reshape((lowresSize[1], stride))
+        if frame is None:
+            break
+    else:
+        capture_success, frame = camera.read()
+        if not capture_success:
+            break
 
     # make new_frame but don't flect it
     target_width = 320
