@@ -24,16 +24,10 @@ if rk.key_engine.get_key("CameraDevice").get("value") == "macbook pro":
 elif rk.key_engine.get_key("CameraDevice").get("value") == "iphone":
     camera = rk.cv.VideoCapture(1)
 elif rk.key_engine.get_key("CameraDevice").get("value") == "raspberry pi":
-    normalSize = (640, 480)
-    lowresSize = (320, 240)
-    camera = rk.picamera2.Picamera2()
-    camera.start_preview(rk.picamera2.Preview.QTGL)
-    config = camera.create_preview_configuration(main={"size": normalSize},
-                                                 lores={"size": lowresSize, "format": "YUV420"})
-    camera.configure(config)
-    stride = camera.stream_configuration("lores")["stride"]
-    # camera.post_callback = Draw
+    camera = rk.Picamera2()
+    camera.configure(camera.create_preview_configuration(main={"size": (320, 320)}))
     camera.start()
+
 else:
     print("warning! Invalid camera device. Using default device.")
     camera = rk.cv.VideoCapture(0)
@@ -41,24 +35,29 @@ else:
 last_update_time = rk.time.time()
 while True:
     if rk.key_engine.get_key("CameraDevice").get("value") == "raspberry pi":
-        frame = camera.capture_buffer("lores")
-        frame = frame[:stride * lowresSize[1]].reshape((lowresSize[1], stride))
+        frame = camera.capture_array()
+        frame = rk.cv.cvtColor(frame, rk.cv.COLOR_BGR2RGB)
         if frame is None:
+            print("raspberry pi camera read failed")
             break
     else:
         capture_success, frame = camera.read()
         if not capture_success:
+            print("camera read failed")
             break
 
-    # make new_frame but don't flect it
-    target_width = 320
-    target_height = 320
-    aspect_ratio = float(target_height) / frame.shape[0]
-    dsize = (int(frame.shape[1] * aspect_ratio), target_height)
-    new_frame = rk.cv.resize(frame, dsize)
+    if frame.shape[0] != 320 or frame.shape[1] != 320:
+        # make new_frame but don't flect it
+        target_width = 320
+        target_height = 320
+        aspect_ratio = float(target_height) / frame.shape[0]
+        dsize = (int(frame.shape[1] * aspect_ratio), target_height)
+        new_frame = rk.cv.resize(frame, dsize)
 
-    # cut the new_frame width to 320 center
-    new_frame = new_frame[:, new_frame.shape[1] // 2 - target_width // 2: new_frame.shape[1] // 2 + target_width // 2]
+        # cut the new_frame width to 320 center
+        new_frame = new_frame[:, new_frame.shape[1] // 2 - target_width // 2: new_frame.shape[1] // 2 + target_width // 2]
+    else:
+        new_frame = frame
 
     if rk.key_engine.get_key("ROSModelActive").get("value"):
         rk.process_frame(new_frame)
