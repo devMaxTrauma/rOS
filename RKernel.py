@@ -1,24 +1,34 @@
 class RKernel:
-    import tensorflow as tf
-    import cv2 as cv
-    import numpy as np
-    import time
-    from picamera2 import Picamera2
+
 
     def __init__(self):
         self.__boot__()
 
     def __boot__(self):
         print("rKernel booting up...")
+        self.__load_key__()
+        self.__load_imports__()
+        print("imported")
         self.splash_screen = self.cv.imread("ROS_SPLASH.png")
         self.__load_sound__()
-        self.__load_key__()
         self.__load_label__()
         self.__load_color__()
         self.__load_model__()
         # self.__load_socket__()
         self.key_engine.set_key("ROSIsOn", True)
         print("rKernel booted up.")
+
+    def __load_imports__(self):
+        print("Loading imports...")
+        self.tf = __import__("tensorflow")
+        self.cv = __import__("cv2")
+        self.np = __import__("numpy")
+        self.time = __import__("time")
+        if self.key_engine.get_key("CameraDevice").get("value") == "raspberry pi":
+            print("CameraDevice is raspberry pi. So importing Picamera2...")
+            self.Picamera2 = __import__("picamera2")
+            print("Picamera2 imported.")
+        print("Imports loaded.")
 
     def __load_key__(self):
         print("Loading key engine...")
@@ -344,6 +354,8 @@ class RLabel:
                 pass
             else:
                 average_width_max_len = max(average_width_max_len, len(str(self.labels[label_index]["average_width"])))
+
+
 
         print("+" + "-" * (label_max_len + 2) + "+" + "-" * (index_max_len + 2) + "+" + "-" * (
                 average_width_max_len + 2) + "+")
