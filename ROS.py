@@ -32,6 +32,10 @@ else:
     print("warning! Invalid camera device. Using default device.")
     camera = rk.cv.VideoCapture(0)
 
+if camera is None:
+    print("camera open failed")
+    rk.shutdown()
+
 last_update_time = rk.time.time()
 while True:
     if rk.key_engine.get_key("CameraDevice").get("value") == "raspberry pi":

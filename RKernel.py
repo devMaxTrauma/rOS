@@ -1,6 +1,5 @@
 class RKernel:
 
-
     def __init__(self):
         self.__boot__()
 

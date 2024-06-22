@@ -1,4 +1,4 @@
-<name> ROSVersion </> <type> str </> <value> DemonSlayer.2 </> <comment> ROSVersion </>
+<name> ROSVersion </> <type> str </> <value> DemonSlayer.5 </> <comment> ROSVersion </>
 <name> ROSIsOn </> <type> bool </> <value> False </> <comment> ROSIsOnNoticeROS is shutdown properly </>
 <name> BootDebugLogOn </> <type> bool </> <value> False </> <comment> BootDebugLogOnNoticeBoot debug log is on or off </>
 <name> RKeySetDebugLogOn </> <type> bool </> <value> False </> <comment> RKeySetDebugLogOnNoticeRKeySet debug log is on or off </>
