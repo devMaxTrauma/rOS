@@ -109,13 +109,21 @@ class RKernel:
             pass
 
     def make_ar_frame(self, frame):
+        # make sure that input frame is 320x320
+        if frame.shape[0] != 320 or frame.shape[1] != 320:
+            target_width = 320
+            target_height = 320
+            aspect_ratio = float(target_height) / frame.shape[0]
+            dsize = (int(frame.shape[1] * aspect_ratio), target_height)
+            new_frame = self.cv.resize(frame, dsize)
+            new_frame = new_frame[:,
+                        new_frame.shape[1] // 2 - target_width // 2: new_frame.shape[1] // 2 + target_width // 2]
+            frame = new_frame
         # frame input resolution: 320 320
         ar_width = self.key_engine.get_key("ARDisplayWidth").get("value")
         ar_height = self.key_engine.get_key("ARDisplayHeight").get("value")
         ar_ppi = self.key_engine.get_key("ARDisplayPPI").get("value")
         user_eye_distance = self.key_engine.get_key("AREyeDistance").get("value")  # meter
-
-        max_frame_size_per_eye = min(ar_height, ar_width // 2)
 
         ar_screen = self.np.zeros((ar_height, ar_width, 3), self.np.uint8)
         ar_screen = self.cv.cvtColor(ar_screen, self.cv.COLOR_BGR2RGB)
@@ -131,12 +139,29 @@ class RKernel:
         right_eye_start_x = right_eye_center_x - (320 // 2)
         eye_start_y = eye_center_y - (320 // 2)
 
-        preferred_eye = self.key_engine.get_key("ARPreferredEye").get("value")
-        if preferred_eye == "left" or eye_distance_to_pixel >= 320:
-            ar_screen[eye_start_y:eye_start_y + 320, left_eye_start_x:left_eye_start_x + 320] = frame
+        if self.key_engine.get_key("ARMode").get("value") == "both eye":
+            left_eye_screen = frame  # copy left eye
+            right_eye_screen = frame  # copy right eye
+            usable_width_per_eye_in_meter = (user_eye_distance / 2) - 0.005  # meter
+            usable_width_per_eye_in_pixel = int(usable_width_per_eye_in_meter * ar_ppi * 39.3701)
+            usable_width_per_eye_in_pixel = min(usable_width_per_eye_in_pixel, 320)
+            print("usable pixel:", usable_width_per_eye_in_pixel)
 
-        if preferred_eye == "right" or eye_distance_to_pixel >= 320:
-            ar_screen[eye_start_y:eye_start_y + 320, right_eye_start_x:right_eye_start_x + 320] = frame
+            left_eye_screen = left_eye_screen[:, 0:usable_width_per_eye_in_pixel]
+            right_eye_screen = right_eye_screen[:, 320 - usable_width_per_eye_in_pixel:]
+
+            ar_screen[eye_start_y:eye_start_y + 320,
+            left_eye_start_x:left_eye_start_x + usable_width_per_eye_in_pixel] = left_eye_screen
+            ar_screen[eye_start_y:eye_start_y + 320,
+            right_eye_start_x+320 - usable_width_per_eye_in_pixel:right_eye_start_x + 320] = right_eye_screen
+
+        elif self.key_engine.get_key("ARMode").get("value") == "auto":
+            preferred_eye = self.key_engine.get_key("ARPreferredEye").get("value")
+            if preferred_eye == "left" or eye_distance_to_pixel >= 320:  # copy left eye
+                ar_screen[eye_start_y:eye_start_y + 320, left_eye_start_x:left_eye_start_x + 320] = frame
+
+            if preferred_eye == "right" or eye_distance_to_pixel >= 320:  # copy right eye
+                ar_screen[eye_start_y:eye_start_y + 320, right_eye_start_x:right_eye_start_x + 320] = frame
 
         return ar_screen
 
@@ -353,8 +378,6 @@ class RLabel:
                 pass
             else:
                 average_width_max_len = max(average_width_max_len, len(str(self.labels[label_index]["average_width"])))
-
-
 
         print("+" + "-" * (label_max_len + 2) + "+" + "-" * (index_max_len + 2) + "+" + "-" * (
                 average_width_max_len + 2) + "+")

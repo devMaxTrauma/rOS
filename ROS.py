@@ -16,7 +16,10 @@ else:
 
 boot_start_time = rk.time.time()
 while rk.time.time() - boot_start_time < 5:
-    rk.cv.imshow("ROS", rk.splash_screen)
+    if rk.key_engine.get_key("ROSARDisplayEnabled").get("value"):
+        rk.cv.imshow("ROS", rk.make_ar_frame(rk.splash_screen))
+    else:
+        rk.cv.imshow("ROS", rk.splash_screen)
     rk.cv.waitKey(1)
 
 if rk.key_engine.get_key("CameraDevice").get("value") == "macbook pro":
@@ -59,7 +62,8 @@ while True:
         new_frame = rk.cv.resize(frame, dsize)
 
         # cut the new_frame width to 320 center
-        new_frame = new_frame[:, new_frame.shape[1] // 2 - target_width // 2: new_frame.shape[1] // 2 + target_width // 2]
+        new_frame = new_frame[:,
+                    new_frame.shape[1] // 2 - target_width // 2: new_frame.shape[1] // 2 + target_width // 2]
     else:
         new_frame = frame
 
@@ -76,6 +80,7 @@ while True:
             class_color = rk.color_engine.get_color(class_name)
             if scores[i] > 0.5:
                 box = boxes[i] * [320, 320, 320, 320]
+                text_x, text_y = 0, 0  # for text position
                 if rk.key_engine.get_key("ROSMindDisplayWay").get("value") == "filled box":
                     inverted_color = (255 - class_color[0], 255 - class_color[1], 255 - class_color[2])
                     # outer line
@@ -91,7 +96,9 @@ while True:
 
                 elif rk.key_engine.get_key("ROSMindDisplayWay").get("value") == "outlined box":
                     rk.cv.rectangle(new_frame, (int(box[1]), int(box[0])), (int(box[3]), int(box[2])), class_color, 2)
-                    rk.cv.putText(new_frame, class_name, (int(box[1]), int(box[0])), rk.cv.FONT_HERSHEY_SIMPLEX, 0.5,
+                    text_x = int(box[1])
+                    text_y = int(box[0])
+                    rk.cv.putText(new_frame, class_name, (text_x, text_y), rk.cv.FONT_HERSHEY_SIMPLEX, 0.5,
                                   class_color, 2)
 
                 if rk.key_engine.get_key("DistanceDisplayEnabled").get("value"):
@@ -117,7 +124,7 @@ while True:
     if rk.key_engine.get_key("ROSARDisplayEnabled").get("value"):
         new_frame = rk.make_ar_frame(new_frame)
 
-    rk.cv.imshow("ROS", new_frame) 
+    rk.cv.imshow("ROS", new_frame)
 
     if rk.cv.waitKey(1) & 0xFF == 27:
         break
