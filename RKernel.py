@@ -25,7 +25,7 @@ class RKernel:
         self.time = __import__("time")
         if self.key_engine.get_key("CameraDevice").get("value") == "raspberry pi":
             print("CameraDevice is raspberry pi. So importing Picamera2...")
-            self.Picamera2 = __import__("picamera2")
+            self.picamera2 = __import__("picamera2")
             print("Picamera2 imported.")
         print("Imports loaded.")
 

@@ -27,7 +27,7 @@ if rk.key_engine.get_key("CameraDevice").get("value") == "macbook pro":
 elif rk.key_engine.get_key("CameraDevice").get("value") == "iphone":
     camera = rk.cv.VideoCapture(1)
 elif rk.key_engine.get_key("CameraDevice").get("value") == "raspberry pi":
-    camera = rk.Picamera2()
+    camera = rk.picamera2.Picamera2()
     camera.configure(camera.create_preview_configuration(main={"size": (320, 320)}))
     camera.start()
 
