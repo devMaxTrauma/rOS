@@ -3,12 +3,13 @@
 <name> BootDebugLogOn </> <type> bool </> <value> False </> <comment> BootDebugLogOnNoticeBoot debug log is on or off </>
 <name> RKeySetDebugLogOn </> <type> bool </> <value> False </> <comment> RKeySetDebugLogOnNoticeRKeySet debug log is on or off </>
 <name> RKeySaveDebugLogOn </> <type> bool </> <value> False </> <comment> RKeySaveDebugLogOnNoticeRKeySave debug log is on or off </>
-<name> CameraDevice </> <type> str </> <value> raspberry pi </> <comment> CameraDeviceName </>
+<name> CameraDevice </> <type> str </> <value> macbook pro </> <comment> CameraDeviceName </>
 <name> ROSModelActive </> <type> bool </> <value> True </> <comment> ROSModelActiveNoticeROS model is active or not </>
 <name> ROSMindDisplayWay </> <type> str </> <value> filled box </> <comment> ROSMindDisplayWayNoticeROS mind display way </>
 <name> ROSDisplayFPSEnable </> <type> bool </> <value> True </> <comment> ROSDisplayFPSEnableNoticeROS display FPS is enable or not </>
-<name> SLDDeviceIP </> <type> str </> <value> 192.168.101.25 </> <comment> SLDDeviceIPNoticeSLD device IP </>
+<name> SLDDeviceIP </> <type> str </> <value> 0.0.0.0 </> <comment> SLDDeviceIPNoticeSLD device IP </>
 <name> SLDDevicePort </> <type> int </> <value> 8080 </> <comment> SLDDevicePortNoticeSLD device port </>
+<name> SLDConnectTimeout </> <type> int </> <value> 5 </> <comment> SLDConnectTimeoutNoticeSLD connect timeout </>
 <name> ROSObjectDistanceCalculateConstant </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantNoticeROS object distance calculate constant </>
 <name> DistanceUnit </> <type> str </> <value> SI </> <comment> DistanceUnitNoticeDistance unit </>
 <name> DistanceDisplayEnabled </> <type> bool </> <value> True </> <comment> DistanceDisplayEnabledNoticeDistance display is enabled or not </>

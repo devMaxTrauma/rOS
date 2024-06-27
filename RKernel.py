@@ -1,3 +1,6 @@
+import socket
+
+
 class RKernel:
 
     def __init__(self):
@@ -13,7 +16,7 @@ class RKernel:
         self.__load_label__()
         self.__load_color__()
         self.__load_model__()
-        # self.__load_socket__()
+        self.__load_socket__()
         self.key_engine.set_key("ROSIsOn", True)
         print("rKernel booted up.")
 
@@ -57,12 +60,12 @@ class RKernel:
         self.model_output_details = self.model.get_output_details()
         print("Model loaded.")
 
-    # def __load_socket__(self):
-    #     print("Loading socket...")
-    #     ip = self.key_engine.get_key("SLDDeviceIP").get("value")
-    #     port = self.key_engine.get_key("SLDDevicePort").get("value")
-    #     self.socket = RSocket(ip, port)
-    #     print("Socket loaded.")
+    def __load_socket__(self):
+        print("Loading socket...")
+        ip = self.key_engine.get_key("SLDDeviceIP").get("value")
+        port = self.key_engine.get_key("SLDDevicePort").get("value")
+        self.socket_engine = RSocket(ip, port)
+        print("Socket loaded.")
 
     def shutdown(self):
         print("Shutting down rKernel...")
@@ -71,6 +74,7 @@ class RKernel:
         self.label_engine.erase_memory()
         self.color_engine.erase_memory()
         self.key_engine.set_key("ROSIsOn", False)
+        self.socket_engine.close()
         print("rKernel shut down.")
 
     def process_frame(self, frame):
@@ -153,7 +157,7 @@ class RKernel:
             ar_screen[eye_start_y:eye_start_y + 320,
             left_eye_start_x:left_eye_start_x + usable_width_per_eye_in_pixel] = left_eye_screen
             ar_screen[eye_start_y:eye_start_y + 320,
-            right_eye_start_x+320 - usable_width_per_eye_in_pixel:right_eye_start_x + 320] = right_eye_screen
+            right_eye_start_x + 320 - usable_width_per_eye_in_pixel:right_eye_start_x + 320] = right_eye_screen
 
         elif self.key_engine.get_key("ARMode").get("value") == "auto":
             preferred_eye = self.key_engine.get_key("ARPreferredEye").get("value")
@@ -476,26 +480,61 @@ class RColor:
         self.colors = {}
         print("Color memory erased.")
 
-# class RSocket:
-#     # this code is for socket transfer
-#     import socket
-#
-#     def __init__(self, ip, port):
-#         print("Socket connecting to " + ip + ":" + str(port) + "...")
-#         self.ip = ip
-#         self.port = port
-#         self.socket = self.socket.socket(self.socket.AF_INET, self.socket.SOCK_STREAM)
-#         print("Socket created.")
-#         self.socket.connect((self.ip, self.port))
-#         print("Socket connected to " + self.ip + ":" + str(self.port) + ".")
-#         self.socket.setblocking(False)
-#
-#     def send(self, data):
-#         self.socket.send(data)
-#
-#     def receive(self):
-#         return self.socket.recv(1024)
-#
-#     def close(self):
-#         self.socket.close()
-#         print("Socket closed.")
+
+class RSocket:
+    # this code is for socket transfer
+    import socket
+    import threading
+
+    def __init__(self, ip, port):
+        print("Socket connecting to " + ip + ":" + str(port) + "...")
+        self.ip = ip
+        self.port = port
+        self.socket = self.socket.socket(self.socket.AF_INET, self.socket.SOCK_STREAM)
+        print("Socket created.")
+        self.socket.bind((self.ip, self.port))
+        print("Socket connected to " + self.ip + ":" + str(self.port) + ".")
+        self.socket.listen(1)
+        rkey = RKey()
+        self.socket.settimeout(rkey.get_key("SLDConnectTimeout").get("value"))
+        print("Socket listening...")
+
+        while True:
+            try:
+                print("looped fuck")
+                self.sld_socket, self.sld_address = self.socket.accept()
+                print("Connected to " + str(self.sld_address) + ".")
+                self.sld_rx_thread = self.threading.Thread(target=self.socket_rx_thread, args=(self.sld_socket,))
+                self.sld_rx_thread.start()
+                if self.sld_socket:
+                    break
+            except socket.timeout:
+                print("timeout")
+                break
+
+    def socket_rx_thread(self, sld_socket):
+        try:
+            while True:
+                data = sld_socket.recv(1024)
+                if not data:  # if data is empty
+                    continue
+                elif data == b"exit":  # if data is "exit"
+                    break
+                print("Received: " + str(data))
+        except Exception as e:
+            print("Error in socket_rx_thread.")
+            print(e)
+        finally:
+            sld_socket.close()
+            print("Socket closed.")
+
+    def send(self, data):
+        self.socket.send(data)
+
+    def receive(self):
+        return self.socket.recv(1024)
+
+    def close(self):
+        self.sld_rx_thread.join()
+        self.socket.close()
+        print("Socket closed.")
