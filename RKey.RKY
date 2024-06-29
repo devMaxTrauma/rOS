@@ -1,4 +1,5 @@
 <name> ROSVersion </> <type> str </> <value> DemonSlayer.5 </> <comment> ROSVersion </>
+<name> ROSBootChimeEnabled </> <type> bool </> <value> False </> <comment> ROSBootChimeEnabledNoticeROS boot chime is enabled or not </>
 <name> ROSIsOn </> <type> bool </> <value> False </> <comment> ROSIsOnNoticeROS is shutdown properly </>
 <name> BootDebugLogOn </> <type> bool </> <value> False </> <comment> BootDebugLogOnNoticeBoot debug log is on or off </>
 <name> RKeySetDebugLogOn </> <type> bool </> <value> False </> <comment> RKeySetDebugLogOnNoticeRKeySet debug log is on or off </>
@@ -20,4 +21,4 @@
 <name> ARDisplayWidth </> <type> int </> <value> 800 </> <comment> ARDisplayWidthNoticeAR display width </>
 <name> ARDisplayHeight </> <type> int </> <value> 480 </> <comment> ARDisplayHeightNoticeAR display height </>
 <name> ARPreferredEye </> <type> str </> <value> right </> <comment> ARPreferredEyeNoticeAR preferred eye </>
-<name> ARMode </> <type> str </> <value> auto </> <comment> ARModeFor auto or Both Eye </>
+<name> ARMode </> <type> str </> <value> both eye </> <comment> ARModeFor auto or Both Eye </>

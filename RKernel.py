@@ -5,6 +5,8 @@ class RKernel:
 
     def __init__(self):
         self.__boot__()
+        if self.key_engine.get_key("ROSBootChimeEnabled").get("value"):
+            self.sound_engine.play("startup.wav")
 
     def __boot__(self):
         print("rKernel booting up...")
@@ -144,20 +146,42 @@ class RKernel:
         eye_start_y = eye_center_y - (320 // 2)
 
         if self.key_engine.get_key("ARMode").get("value") == "both eye":
-            left_eye_screen = frame  # copy left eye
-            right_eye_screen = frame  # copy right eye
-            usable_width_per_eye_in_meter = (user_eye_distance / 2) - 0.005  # meter
-            usable_width_per_eye_in_pixel = int(usable_width_per_eye_in_meter * ar_ppi * 39.3701)
-            usable_width_per_eye_in_pixel = min(usable_width_per_eye_in_pixel, 320)
-            print("usable pixel:", usable_width_per_eye_in_pixel)
+            # work here todo
 
-            left_eye_screen = left_eye_screen[:, 0:usable_width_per_eye_in_pixel]
-            right_eye_screen = right_eye_screen[:, 320 - usable_width_per_eye_in_pixel:]
+            # prev version
+            # left_eye_screen = frame  # copy left eye
+            # right_eye_screen = frame  # copy right eye
+            # usable_width_per_eye_in_meter = (user_eye_distance / 2) - 0.005  # meter
+            # usable_width_per_eye_in_pixel = int(usable_width_per_eye_in_meter * ar_ppi * 39.3701)
+            # usable_width_per_eye_in_pixel = min(usable_width_per_eye_in_pixel, 320)
+            # print("usable pixel:", usable_width_per_eye_in_pixel)
+            #
+            # left_eye_screen = left_eye_screen[:, 0:usable_width_per_eye_in_pixel]
+            # right_eye_screen = right_eye_screen[:, 320 - usable_width_per_eye_in_pixel:]
+            #
+            # ar_screen[eye_start_y:eye_start_y + 320,
+            # left_eye_start_x:left_eye_start_x + usable_width_per_eye_in_pixel] = left_eye_screen
+            # ar_screen[eye_start_y:eye_start_y + 320,
+            # right_eye_start_x + 320 - usable_width_per_eye_in_pixel:right_eye_start_x + 320] = right_eye_screen
 
-            ar_screen[eye_start_y:eye_start_y + 320,
-            left_eye_start_x:left_eye_start_x + usable_width_per_eye_in_pixel] = left_eye_screen
-            ar_screen[eye_start_y:eye_start_y + 320,
-            right_eye_start_x + 320 - usable_width_per_eye_in_pixel:right_eye_start_x + 320] = right_eye_screen
+            # new version
+            left_eye_screen = frame
+            right_eye_screen = frame
+
+            center_cross_bar_width = 0.01  # meter
+            center_cross_bar_width_pixel = int(center_cross_bar_width * ar_ppi * 39.3701)
+
+            left_eye_max_x = (ar_width - center_cross_bar_width_pixel) // 2
+            right_eye_min_x = (ar_width + center_cross_bar_width_pixel) // 2
+
+            left_eye_screen_width = left_eye_max_x - left_eye_start_x
+            right_eye_screen_width = right_eye_start_x + 320 - right_eye_min_x
+
+            left_eye_screen = left_eye_screen[:, 0:left_eye_screen_width]
+            right_eye_screen = right_eye_screen[:, 320 - right_eye_screen_width:]
+
+            ar_screen[eye_start_y:eye_start_y + 320, left_eye_start_x:left_eye_start_x + left_eye_screen_width] = left_eye_screen
+            ar_screen[eye_start_y:eye_start_y + 320, right_eye_start_x + 320 - right_eye_screen_width:right_eye_start_x + 320] = right_eye_screen
 
         elif self.key_engine.get_key("ARMode").get("value") == "auto":
             preferred_eye = self.key_engine.get_key("ARPreferredEye").get("value")
@@ -316,7 +340,7 @@ class RSound:
     def __init__(self):
         self.pygame.init()
         self.threading.Thread(target=self._running).start()
-        self.play("startup.wav")
+        # self.play("startup.wav")
 
     def _running(self):
         while True:
