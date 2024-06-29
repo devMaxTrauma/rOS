@@ -146,8 +146,6 @@ class RKernel:
         eye_start_y = eye_center_y - (320 // 2)
 
         if self.key_engine.get_key("ARMode").get("value") == "both eye":
-            # work here todo
-
             # prev version
             # left_eye_screen = frame  # copy left eye
             # right_eye_screen = frame  # copy right eye
