@@ -1,15 +1,16 @@
 <name> ROSVersion </> <type> str </> <value> DemonSlayer.5 </> <comment> ROSVersion </>
-<name> ROSBootChimeEnabled </> <type> bool </> <value> False </> <comment> ROSBootChimeEnabledNoticeROS boot chime is enabled or not </>
+<name> ROSBootChimeEnabled </> <type> bool </> <value> True </> <comment> ROSBootChimeEnabledNoticeROS boot chime is enabled or not </>
 <name> ROSIsOn </> <type> bool </> <value> False </> <comment> ROSIsOnNoticeROS is shutdown properly </>
 <name> BootDebugLogOn </> <type> bool </> <value> False </> <comment> BootDebugLogOnNoticeBoot debug log is on or off </>
 <name> RKeySetDebugLogOn </> <type> bool </> <value> False </> <comment> RKeySetDebugLogOnNoticeRKeySet debug log is on or off </>
 <name> RKeySaveDebugLogOn </> <type> bool </> <value> False </> <comment> RKeySaveDebugLogOnNoticeRKeySave debug log is on or off </>
 <name> CameraDevice </> <type> str </> <value> macbook pro </> <comment> CameraDeviceName </>
+<name> ROSRunningDevice </> <type> str </> <value> macbook pro </> <comment> ROSRunningDeviceNoticeROS running device </>
 <name> ROSModelActive </> <type> bool </> <value> True </> <comment> ROSModelActiveNoticeROS model is active or not </>
 <name> ROSMindDisplayWay </> <type> str </> <value> filled box </> <comment> ROSMindDisplayWayNoticeROS mind display way </>
 <name> ROSDisplayFPSEnable </> <type> bool </> <value> True </> <comment> ROSDisplayFPSEnableNoticeROS display FPS is enable or not </>
 <name> SLDDeviceIP </> <type> str </> <value> 0.0.0.0 </> <comment> SLDDeviceIPNoticeSLD device IP </>
-<name> SLDDevicePort </> <type> int </> <value> 8080 </> <comment> SLDDevicePortNoticeSLD device port </>
+<name> SLDDevicePort </> <type> int </> <value> 5001 </> <comment> SLDDevicePortNoticeSLD device port </>
 <name> SLDConnectTimeout </> <type> int </> <value> 5 </> <comment> SLDConnectTimeoutNoticeSLD connect timeout </>
 <name> ROSObjectDistanceCalculateConstant </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantNoticeROS object distance calculate constant </>
 <name> DistanceUnit </> <type> str </> <value> SI </> <comment> DistanceUnitNoticeDistance unit </>
@@ -22,3 +23,6 @@
 <name> ARDisplayHeight </> <type> int </> <value> 480 </> <comment> ARDisplayHeightNoticeAR display height </>
 <name> ARPreferredEye </> <type> str </> <value> right </> <comment> ARPreferredEyeNoticeAR preferred eye </>
 <name> ARMode </> <type> str </> <value> both eye </> <comment> ARModeFor auto or Both Eye </>
+<name> ROSObjectDistanceCalculateConstantRaspberryPi </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantRaspberryPiNoticeROS object distance calculate constant for Raspberry Pi </>
+<name> ROSObjectDistanceCalculateConstantMacBookPro </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantMacBookProNoticeROS object distance calculate constant for MacBook Pro </>
+<name> ROSObjectDistanceCalculateConstantIphone </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantIphoneNoticeROS object distance calculate constant for iPhone </>
