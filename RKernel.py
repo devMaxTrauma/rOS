@@ -28,11 +28,22 @@ class RKernel:
         self.cv = __import__("cv2")
         self.np = __import__("numpy")
         self.time = __import__("time")
-        if self.key_engine.get_key("CameraDevice").get("value") == "raspberry pi":
-            print("CameraDevice is raspberry pi. So importing Picamera2...")
+        if self.key_engine.get_key("ROSRunningDevice").get("value") == "raspberry pi":
+            print("ROS is running on raspberry pi. So importing Picamera2...")
             self.picamera2 = __import__("picamera2")
             print("Picamera2 imported.")
         print("Imports loaded.")
+
+        print("checking versions")
+        print("tensorflow version:", self.tf.__version__)
+        print("opencv version:", self.cv.__version__)
+        print("numpy version:", self.np.__version__)
+        if self.key_engine.get_key("ROSRunningDevice").get("value") == "raspberry pi":
+            print("picamera2 version:", self.picamera2.__version__)
+        print("versions checked.")
+        print("ROS is running on "+self.key_engine.get_key("ROSRunningDevice").get("value"))
+        print("Camera Device: "+self.key_engine.get_key("CameraDevice").get("value"))
+        print("ROS Version: "+self.key_engine.get_key("ROSVersion").get("value"))
 
     def __load_key__(self):
         print("Loading key engine...")
@@ -88,7 +99,20 @@ class RKernel:
         self.model.invoke()
 
     def calculate_distance(self, object_average_width, box_width_pixel):
-        distance_calculate_constance = self.key_engine.get_key("ROSObjectDistanceCalculateConstant").get("value")
+        distance_calculate_constance = self.key_engine.get_key("ROSObjectDistanceCalculateConstantDefault").get("value")
+        if self.key_engine.get_key("CameraDevice").get("value") == "raspberry pi":
+            distance_calculate_constance = self.key_engine.get_key("ROSObjectDistanceCalculateConstantRaspberryPi").get("value")
+            pass
+        elif self.key_engine.get_key("CameraDevice").get("value") == "macbook pro":
+            distance_calculate_constance = self.key_engine.get_key("ROSObjectDistanceCalculateConstantMacBookPro").get("value")
+            pass
+        elif self.key_engine.get_key("CameraDevice").get("value") == "iphone":
+            distance_calculate_constance = self.key_engine.get_key("ROSObjectDistanceCalculateConstantIphone").get("value")
+            pass
+        else:
+            print("Warning!: Invalid camera device. Using default constant.")
+            pass
+
         if object_average_width == -1.0:
             return str("N/A")
 

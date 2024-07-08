@@ -1,4 +1,4 @@
-<name> ROSVersion </> <type> str </> <value> DemonSlayer.5 </> <comment> ROSVersion </>
+<name> ROSVersion </> <type> str </> <value> DemonSlayer.7 </> <comment> ROSVersion </>
 <name> ROSBootChimeEnabled </> <type> bool </> <value> True </> <comment> ROSBootChimeEnabledNoticeROS boot chime is enabled or not </>
 <name> ROSIsOn </> <type> bool </> <value> False </> <comment> ROSIsOnNoticeROS is shutdown properly </>
 <name> BootDebugLogOn </> <type> bool </> <value> False </> <comment> BootDebugLogOnNoticeBoot debug log is on or off </>
@@ -12,7 +12,7 @@
 <name> SLDDeviceIP </> <type> str </> <value> 0.0.0.0 </> <comment> SLDDeviceIPNoticeSLD device IP </>
 <name> SLDDevicePort </> <type> int </> <value> 5001 </> <comment> SLDDevicePortNoticeSLD device port </>
 <name> SLDConnectTimeout </> <type> int </> <value> 5 </> <comment> SLDConnectTimeoutNoticeSLD connect timeout </>
-<name> ROSObjectDistanceCalculateConstant </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantNoticeROS object distance calculate constant </>
+<name> ROSObjectDistanceCalculateConstantDefault </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantNoticeROS object distance calculate constant </>
 <name> DistanceUnit </> <type> str </> <value> SI </> <comment> DistanceUnitNoticeDistance unit </>
 <name> DistanceDisplayEnabled </> <type> bool </> <value> True </> <comment> DistanceDisplayEnabledNoticeDistance display is enabled or not </>
 <name> DistanceDisplayWay </> <type> str </> <value> invertedColorInBox </> <comment> DistanceDisplayWayNoticeDistance display way </>
