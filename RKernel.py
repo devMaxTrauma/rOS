@@ -18,7 +18,7 @@ class RKernel:
         self.__load_label__()
         self.__load_color__()
         self.__load_model__()
-        self.__load_socket__()
+        # self.__load_socket__()
         self.__load_bluetooth__()
         self.key_engine.set_key("ROSIsOn", True)
         print("rKernel booted up.")
