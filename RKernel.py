@@ -1,4 +1,4 @@
-import socket
+# import socket
 
 
 class RKernel:
@@ -92,8 +92,11 @@ class RKernel:
         self.sound_engine.pygame.quit()
         self.label_engine.erase_memory()
         self.color_engine.erase_memory()
+        # self.socket_engine.close()
+        if self.key_engine.get_key("ROSRunningDevice").get("value") == "raspberry pi":
+            self.bluetooth_engine.close()
         self.key_engine.set_key("ROSIsOn", False)
-        self.socket_engine.close()
+        print("rKernel is safe to shut down.")
         print("rKernel shut down.")
 
     def process_frame(self, frame):
@@ -624,22 +627,31 @@ class RBluetooth:
         self.server_sock.listen(1)
 
         self.port = self.server_sock.getsockname()[1]
-
-        self.uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
-        bluetooth.advertise_service(self.server_sock, "SampleServer",
-                                        service_id=self.uuid,
-                                        service_classes=[self.uuid, self.bluetooth.SERIAL_PORT_CLASS],
-                                        profiles=[self.bluetooth.SERIAL_PORT_PROFILE])
+        self.uuid = "00001101-0000-1000-8000-00805F9B34FB"
+        self.service_name = "FindMy"
+        try:
+            bluetooth.advertise_service(self.server_sock, self.service_name,
+                                            service_id=self.uuid,
+                                            service_classes=[self.uuid, self.bluetooth.SERIAL_PORT_CLASS],
+                                            profiles=[self.bluetooth.SERIAL_PORT_PROFILE])
+        except Exception as e:
+            print("Error in bluetooth advertise_service.")
         print("Waiting for connection on RFCOMM channel", self.port)
 
-        while True:
-            self.client_sock, self.client_info = self.server_sock.accept()
-            print("Accepted connection from", self.client_info)
-            self.rx_thread = self.threading.Thread(target=self.rx_interrupt, args=(self.client_sock,)).start()
+        self.server_sock.settimeout(10)
+        try:
+            while True:
+                self.client_sock, self.client_info = self.server_sock.accept()
+                print("Accepted connection from", self.client_info)
+                self.rx_thread = self.threading.Thread(target=self.rx_interrupt, args=(self.client_sock,)).start()
 
-            if self.client_sock:
-                break
-        pass
+                if self.client_sock:
+                    break
+            pass
+        except Exception as e:
+            print("Error in bluetooth connection.")
+            print(e)
+            pass
 
     def rx_interrupt(self, client_sock):
         try:
@@ -654,4 +666,10 @@ class RBluetooth:
         finally:
             client_sock.close()
             print("Bluetooth closed.")
+        pass
+
+    def close(self):
+        self.rx_thread.join()
+        self.server_sock.close()
+        print("Bluetooth closed.")
         pass
