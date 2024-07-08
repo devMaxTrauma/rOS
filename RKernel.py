@@ -19,6 +19,7 @@ class RKernel:
         self.__load_color__()
         self.__load_model__()
         self.__load_socket__()
+        self.__load_bluetooth__()
         self.key_engine.set_key("ROSIsOn", True)
         print("rKernel booted up.")
 
@@ -38,8 +39,6 @@ class RKernel:
         print("tensorflow version:", self.tf.__version__)
         print("opencv version:", self.cv.__version__)
         print("numpy version:", self.np.__version__)
-        if self.key_engine.get_key("ROSRunningDevice").get("value") == "raspberry pi":
-            print("picamera2 version:", self.picamera2.__version__)
         print("versions checked.")
         print("ROS is running on "+self.key_engine.get_key("ROSRunningDevice").get("value"))
         print("Camera Device: "+self.key_engine.get_key("CameraDevice").get("value"))
@@ -79,6 +78,13 @@ class RKernel:
         port = self.key_engine.get_key("SLDDevicePort").get("value")
         self.socket_engine = RSocket(ip, port)
         print("Socket loaded.")
+
+    def __load_bluetooth__(self):
+        if self.key_engine.get_key("ROSRunningDevice").get("value") != "raspberry pi":
+            return
+        print("Loading bluetooth...")
+        self.bluetooth_engine = RBluetooth()
+        print("Bluetooth loaded.")
 
     def shutdown(self):
         print("Shutting down rKernel...")
@@ -607,3 +613,45 @@ class RSocket:
         self.sld_rx_thread.join()
         self.socket.close()
         print("Socket closed.")
+
+
+class RBluetooth:
+    def __init__(self):
+        self.bluetooth = __import__("bluetooth")
+        self.threading = __import__("threading")
+        self.server_sock = self.bluetooth.BluetoothSocket(self.bluetooth.RFCOMM)
+        self.server_sock.bind(("", self.bluetooth.PORT_ANY))
+        self.server_sock.listen(1)
+
+        self.port = self.server_sock.getsockname()[1]
+
+        self.uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
+        bluetooth.advertise_service(self.server_sock, "SampleServer",
+                                        service_id=self.uuid,
+                                        service_classes=[self.uuid, self.bluetooth.SERIAL_PORT_CLASS],
+                                        profiles=[self.bluetooth.SERIAL_PORT_PROFILE])
+        print("Waiting for connection on RFCOMM channel", self.port)
+
+        while True:
+            self.client_sock, self.client_info = self.server_sock.accept()
+            print("Accepted connection from", self.client_info)
+            self.rx_thread = self.threading.Thread(target=self.rx_interrupt, args=(self.client_sock,)).start()
+
+            if self.client_sock:
+                break
+        pass
+
+    def rx_interrupt(self, client_sock):
+        try:
+            while True:
+                data = client_sock.recv(1024)
+                if not data:
+                    break
+                print("Received: " + str(data))
+        except Exception as e:
+            print("Error in rx_interrupt.")
+            print(e)
+        finally:
+            client_sock.close()
+            print("Bluetooth closed.")
+        pass
