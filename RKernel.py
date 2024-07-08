@@ -7,6 +7,9 @@ class RKernel:
         self.__boot__()
         if self.key_engine.get_key("ROSBootChimeEnabled").get("value"):
             self.sound_engine.play("startup.wav")
+            pass
+        else:
+            pass
 
     def __boot__(self):
         print("rKernel booting up...")
@@ -22,6 +25,7 @@ class RKernel:
         self.__load_bluetooth__()
         self.key_engine.set_key("ROSIsOn", True)
         print("rKernel booted up.")
+        pass
 
     def __load_imports__(self):
         print("Loading imports...")
@@ -40,9 +44,10 @@ class RKernel:
         print("opencv version:", self.cv.__version__)
         print("numpy version:", self.np.__version__)
         print("versions checked.")
-        print("ROS is running on "+self.key_engine.get_key("ROSRunningDevice").get("value"))
-        print("Camera Device: "+self.key_engine.get_key("CameraDevice").get("value"))
-        print("ROS Version: "+self.key_engine.get_key("ROSVersion").get("value"))
+        print("ROS is running on " + self.key_engine.get_key("ROSRunningDevice").get("value"))
+        print("Camera Device: " + self.key_engine.get_key("CameraDevice").get("value"))
+        print("ROS Version: " + self.key_engine.get_key("ROSVersion").get("value"))
+        pass
 
     def __load_key__(self):
         print("Loading key engine...")
@@ -73,6 +78,7 @@ class RKernel:
         print("Model loaded.")
 
     def __load_socket__(self):
+        # this code is abandoned haha
         print("Loading socket...")
         ip = self.key_engine.get_key("SLDDeviceIP").get("value")
         port = self.key_engine.get_key("SLDDevicePort").get("value")
@@ -95,6 +101,7 @@ class RKernel:
         # self.socket_engine.close()
         if self.key_engine.get_key("ROSRunningDevice").get("value") == "raspberry pi":
             self.bluetooth_engine.close()
+            pass
         self.key_engine.set_key("ROSIsOn", False)
         print("rKernel is safe to shut down.")
         print("rKernel shut down.")
@@ -110,13 +117,16 @@ class RKernel:
     def calculate_distance(self, object_average_width, box_width_pixel):
         distance_calculate_constance = self.key_engine.get_key("ROSObjectDistanceCalculateConstantDefault").get("value")
         if self.key_engine.get_key("CameraDevice").get("value") == "raspberry pi":
-            distance_calculate_constance = self.key_engine.get_key("ROSObjectDistanceCalculateConstantRaspberryPi").get("value")
+            distance_calculate_constance = self.key_engine.get_key("ROSObjectDistanceCalculateConstantRaspberryPi").get(
+                "value")
             pass
         elif self.key_engine.get_key("CameraDevice").get("value") == "macbook pro":
-            distance_calculate_constance = self.key_engine.get_key("ROSObjectDistanceCalculateConstantMacBookPro").get("value")
+            distance_calculate_constance = self.key_engine.get_key("ROSObjectDistanceCalculateConstantMacBookPro").get(
+                "value")
             pass
         elif self.key_engine.get_key("CameraDevice").get("value") == "iphone":
-            distance_calculate_constance = self.key_engine.get_key("ROSObjectDistanceCalculateConstantIphone").get("value")
+            distance_calculate_constance = self.key_engine.get_key("ROSObjectDistanceCalculateConstantIphone").get(
+                "value")
             pass
         else:
             print("Warning!: Invalid camera device. Using default constant.")
@@ -158,6 +168,7 @@ class RKernel:
             new_frame = new_frame[:,
                         new_frame.shape[1] // 2 - target_width // 2: new_frame.shape[1] // 2 + target_width // 2]
             frame = new_frame
+            pass
         # frame input resolution: 320 320
         ar_width = self.key_engine.get_key("ARDisplayWidth").get("value")
         ar_height = self.key_engine.get_key("ARDisplayHeight").get("value")
@@ -211,8 +222,10 @@ class RKernel:
             left_eye_screen = left_eye_screen[:, 0:left_eye_screen_width]
             right_eye_screen = right_eye_screen[:, 320 - right_eye_screen_width:]
 
-            ar_screen[eye_start_y:eye_start_y + 320, left_eye_start_x:left_eye_start_x + left_eye_screen_width] = left_eye_screen
-            ar_screen[eye_start_y:eye_start_y + 320, right_eye_start_x + 320 - right_eye_screen_width:right_eye_start_x + 320] = right_eye_screen
+            ar_screen[eye_start_y:eye_start_y + 320,
+            left_eye_start_x:left_eye_start_x + left_eye_screen_width] = left_eye_screen
+            ar_screen[eye_start_y:eye_start_y + 320,
+            right_eye_start_x + 320 - right_eye_screen_width:right_eye_start_x + 320] = right_eye_screen
 
         elif self.key_engine.get_key("ARMode").get("value") == "one eye":
             preferred_eye = self.key_engine.get_key("ARPreferredEye").get("value")
@@ -227,7 +240,8 @@ class RKernel:
                 left_eye_screen_width = left_eye_max_x - left_eye_start_x
                 left_eye_screen = left_eye_screen[:, 0:left_eye_screen_width]
 
-                ar_screen[eye_start_y:eye_start_y + 320, left_eye_start_x:left_eye_start_x + left_eye_screen_width] = left_eye_screen
+                ar_screen[eye_start_y:eye_start_y + 320,
+                left_eye_start_x:left_eye_start_x + left_eye_screen_width] = left_eye_screen
                 pass
 
             elif preferred_eye == "right":  # copy right eye
@@ -241,9 +255,9 @@ class RKernel:
                 right_eye_screen_width = right_eye_start_x + 320 - right_eye_min_x
                 right_eye_screen = right_eye_screen[:, 320 - right_eye_screen_width:]
 
-                ar_screen[eye_start_y:eye_start_y + 320, right_eye_start_x + 320 - right_eye_screen_width:right_eye_start_x + 320] = right_eye_screen
+                ar_screen[eye_start_y:eye_start_y + 320,
+                right_eye_start_x + 320 - right_eye_screen_width:right_eye_start_x + 320] = right_eye_screen
                 pass
-
 
         return ar_screen
 
@@ -631,9 +645,9 @@ class RBluetooth:
         self.service_name = "FindMy"
         try:
             bluetooth.advertise_service(self.server_sock, self.service_name,
-                                            service_id=self.uuid,
-                                            service_classes=[self.uuid, self.bluetooth.SERIAL_PORT_CLASS],
-                                            profiles=[self.bluetooth.SERIAL_PORT_PROFILE])
+                                        service_id=self.uuid,
+                                        service_classes=[self.uuid, self.bluetooth.SERIAL_PORT_CLASS],
+                                        profiles=[self.bluetooth.SERIAL_PORT_PROFILE])
         except Exception as e:
             print("Error in bluetooth advertise_service.")
         print("Waiting for connection on RFCOMM channel", self.port)
@@ -646,6 +660,7 @@ class RBluetooth:
                 self.rx_thread = self.threading.Thread(target=self.rx_interrupt, args=(self.client_sock,)).start()
 
                 if self.client_sock:
+                    print("해 냈다 해냈어! devMaxTrauma가 해냈어!")
                     break
             pass
         except Exception as e:
@@ -660,16 +675,25 @@ class RBluetooth:
                 if not data:
                     break
                 print("Received: " + str(data))
+
+                if str(data) == "a":
+                    print("we did it! mother fucking shit!!!!!")
+                    pass
+                else:
+                    print("not as expected, but something is going on")
+                    print(str(data))
         except Exception as e:
             print("Error in rx_interrupt.")
             print(e)
+            pass
         finally:
             client_sock.close()
             print("Bluetooth closed.")
+            pass
         pass
 
     def close(self):
-        self.rx_thread.join()
+        # self.rx_thread.join()
         self.server_sock.close()
         print("Bluetooth closed.")
         pass
