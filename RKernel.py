@@ -636,6 +636,7 @@ class RBluetooth:
     def __init__(self):
         self.bluetooth = __import__("bluetooth")
         self.threading = __import__("threading")
+        self.sound_engine = RSound()
         self.server_sock = self.bluetooth.BluetoothSocket(self.bluetooth.RFCOMM)
         self.server_sock.bind(("", self.bluetooth.PORT_ANY))
         self.server_sock.listen(1)
@@ -676,8 +677,9 @@ class RBluetooth:
                     break
                 print("Received: " + str(data))
 
-                if str(data) == "a":
+                if data == b"a":
                     print("we did it! mother fucking shit!!!!!")
+                    self.sound_engine.play("FindMy.mp3")
                     pass
                 else:
                     print("not as expected, but something is going on")
