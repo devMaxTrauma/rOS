@@ -1,6 +1,5 @@
 # import socket
 
-
 class RKernel:
 
     def __init__(self):
@@ -634,9 +633,11 @@ class RSocket:
 
 class RBluetooth:
     def __init__(self):
+        self.client_info = None
+        self.client_sock = None
+        self.bluetooth_rx_thread = None
         self.bluetooth = __import__("bluetooth")
         self.threading = __import__("threading")
-        self.sound_engine = RSound()
         self.server_sock = self.bluetooth.BluetoothSocket(self.bluetooth.RFCOMM)
         self.server_sock.bind(("", self.bluetooth.PORT_ANY))
         self.server_sock.listen(1)
@@ -644,32 +645,43 @@ class RBluetooth:
         self.port = self.server_sock.getsockname()[1]
         self.uuid = "00001101-0000-1000-8000-00805F9B34FB"
         self.service_name = "FindMy"
+
         try:
-            bluetooth.advertise_service(self.server_sock, self.service_name,
-                                        service_id=self.uuid,
-                                        service_classes=[self.uuid, self.bluetooth.SERIAL_PORT_CLASS],
-                                        profiles=[self.bluetooth.SERIAL_PORT_PROFILE])
+            self.bluetooth.advertise_service(self.server_sock, self.service_name,
+                                            service_id=self.uuid,
+                                            service_classes=[self.uuid, self.bluetooth.SERIAL_PORT_CLASS],
+                                            profiles=[self.bluetooth.SERIAL_PORT_PROFILE])
         except Exception as e:
             print("Error in bluetooth advertise_service.")
-        print("Waiting for connection on RFCOMM channel", self.port)
 
-        self.server_sock.settimeout(10)
-        try:
-            while True:
+        self.threading.Thread(target=self.bluetooth_connect_try).start()
+        print("now you can connect to the bluetooth.")
+
+    def bluetooth_connect_try(self):
+        while True:
+            try:
+                self.server_sock.settimeout(10)
                 self.client_sock, self.client_info = self.server_sock.accept()
                 print("Accepted connection from", self.client_info)
-                self.rx_thread = self.threading.Thread(target=self.rx_interrupt, args=(self.client_sock,)).start()
+                self.bluetooth_rx_thread = self.threading.Thread(target=self.bluetooth_rx_interrupt, args=(self.client_sock,)).start()
 
                 if self.client_sock:
                     print("connected.")
                     break
-            pass
-        except Exception as e:
-            print("Error in bluetooth connection.")
-            print(e)
+                pass
+            except Exception as e:
+                if self.bluetooth_rx_thread is not None:
+                    self.client_sock.close()
+                    self.bluetooth_rx_thread.join()
+                    self.bluetooth_rx_thread = None
+                    pass
+                print("RBluetooth: Error: Error in bluetooth connection.")
+                print(e)
+                print("RBluetooth: retrying...")
+                pass
             pass
 
-    def rx_interrupt(self, client_sock):
+    def bluetooth_rx_interrupt(self, client_sock):
         try:
             while True:
                 data = client_sock.recv(1024)
@@ -678,25 +690,86 @@ class RBluetooth:
                 print("Received: " + str(data))
 
                 if data == b"a":
-                    print("we did it! mother fucking shit!!!!!")
-                    self.sound_engine.play("FindMy.mp3")
                     pass
-                else:
-                    print("not as expected, but something is going on")
-                    print(str(data))
         except Exception as e:
             print("Error in rx_interrupt.")
             print(e)
             pass
-        finally:
-            client_sock.close()
-            print("Bluetooth closed.")
-            pass
-        pass
 
     def close(self):
-        # self.rx_thread.join()
+        if self.bluetooth_rx_thread is not None:
+            self.client_sock.close()
+            self.bluetooth_rx_thread.join()
+            self.bluetooth_rx_thread = None
+            pass
         self.server_sock.close()
-        self.sound_engine.pygame.quit()
         print("Bluetooth closed.")
-        pass
+
+
+    # def __init__(self):
+    #     self.bluetooth = __import__("bluetooth")
+    #     self.threading = __import__("threading")
+    #     self.sound_engine = RSound()
+    #     self.server_sock = self.bluetooth.BluetoothSocket(self.bluetooth.RFCOMM)
+    #     self.server_sock.bind(("", self.bluetooth.PORT_ANY))
+    #     self.server_sock.listen(1)
+    #
+    #     self.port = self.server_sock.getsockname()[1]
+    #     self.uuid = "00001101-0000-1000-8000-00805F9B34FB"
+    #     self.service_name = "FindMy"
+    #     try:
+    #         bluetooth.advertise_service(self.server_sock, self.service_name,
+    #                                     service_id=self.uuid,
+    #                                     service_classes=[self.uuid, self.bluetooth.SERIAL_PORT_CLASS],
+    #                                     profiles=[self.bluetooth.SERIAL_PORT_PROFILE])
+    #     except Exception as e:
+    #         print("Error in bluetooth advertise_service.")
+    #     print("Waiting for connection on RFCOMM channel", self.port)
+    #
+    #     self.server_sock.settimeout(10)
+    #     try:
+    #         while True:
+    #             self.client_sock, self.client_info = self.server_sock.accept()
+    #             print("Accepted connection from", self.client_info)
+    #             self.rx_thread = self.threading.Thread(target=self.rx_interrupt, args=(self.client_sock,)).start()
+    #
+    #             if self.client_sock:
+    #                 print("connected.")
+    #                 break
+    #         pass
+    #     except Exception as e:
+    #         print("Error in bluetooth connection.")
+    #         print(e)
+    #         pass
+    #
+    # def rx_interrupt(self, client_sock):
+    #     try:
+    #         while True:
+    #             data = client_sock.recv(1024)
+    #             if not data:
+    #                 break
+    #             print("Received: " + str(data))
+    #
+    #             if data == b"a":
+    #                 print("we did it! mother fucking shit!!!!!")
+    #                 self.sound_engine.play("FindMy.mp3")
+    #                 pass
+    #             else:
+    #                 print("not as expected, but something is going on")
+    #                 print(str(data))
+    #     except Exception as e:
+    #         print("Error in rx_interrupt.")
+    #         print(e)
+    #         pass
+    #     finally:
+    #         client_sock.close()
+    #         print("Bluetooth closed.")
+    #         pass
+    #     pass
+    #
+    # def close(self):
+    #     # self.rx_thread.join()
+    #     self.server_sock.close()
+    #     self.sound_engine.pygame.quit()
+    #     print("Bluetooth closed.")
+    #     pass
