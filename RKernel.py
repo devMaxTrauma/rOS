@@ -5,7 +5,7 @@ class RKernel:
     def __init__(self):
         self.__boot__()
         if self.key_engine.get_key("ROSBootChimeEnabled").get("value"):
-            self.sound_engine.play("startup.wav")
+            self.sound_engine.play("newStartUp.mp3")
             pass
         else:
             pass
