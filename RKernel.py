@@ -674,7 +674,7 @@ class RBluetooth:
                 if self.client_sock:
                     print("connected.")
                     self.bluetooth_connected = True
-                    break
+                    # break
                 pass
             except Exception as e:
                 if self.bluetooth_rx_thread is not None:

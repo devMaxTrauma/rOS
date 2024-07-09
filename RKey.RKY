@@ -1,4 +1,4 @@
-<name> ROSVersion </> <type> str </> <value> DemonSlayer.8.beta3 </> <comment> ROSVersion </>
+<name> ROSVersion </> <type> str </> <value> DemonSlayer.8 </> <comment> ROSVersion </>
 <name> ROSBootChimeEnabled </> <type> bool </> <value> True </> <comment> ROSBootChimeEnabledNoticeROS boot chime is enabled or not </>
 <name> ROSIsOn </> <type> bool </> <value> False </> <comment> ROSIsOnNoticeROS is shutdown properly </>
 <name> BootDebugLogOn </> <type> bool </> <value> False </> <comment> BootDebugLogOnNoticeBoot debug log is on or off </>
