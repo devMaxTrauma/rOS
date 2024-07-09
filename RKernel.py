@@ -656,7 +656,7 @@ class RBluetooth:
         except Exception as e:
             print("Error in bluetooth advertise_service.")
 
-        self.threading.Thread(target=self.bluetooth_connect_try).start()
+        self.try_thread = self.threading.Thread(target=self.bluetooth_connect_try).start()
         print("now you can connect to the bluetooth.")
 
     def bluetooth_connect_try(self):
@@ -712,6 +712,8 @@ class RBluetooth:
             self.bluetooth_rx_thread.join()
             self.bluetooth_rx_thread = None
             pass
+        if self.try_thread is not None:
+            self.try_thread.join()
         self.server_sock.close()
         print("Bluetooth closed.")
 
