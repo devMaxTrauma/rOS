@@ -633,9 +633,11 @@ class RSocket:
 
 class RBluetooth:
     def __init__(self):
+        self.sound_engine = RSound()
         self.client_info = None
         self.client_sock = None
         self.bluetooth_rx_thread = None
+        self.bluetooth_connected = False
         self.bluetooth = __import__("bluetooth")
         self.threading = __import__("threading")
         self.server_sock = self.bluetooth.BluetoothSocket(self.bluetooth.RFCOMM)
@@ -660,6 +662,10 @@ class RBluetooth:
     def bluetooth_connect_try(self):
         while True:
             try:
+                if self.bluetooth_connected:
+                    import time
+                    time.sleep(1)
+                    continue
                 self.server_sock.settimeout(10)
                 self.client_sock, self.client_info = self.server_sock.accept()
                 print("Accepted connection from", self.client_info)
@@ -667,6 +673,7 @@ class RBluetooth:
 
                 if self.client_sock:
                     print("connected.")
+                    self.bluetooth_connected = True
                     break
                 pass
             except Exception as e:
@@ -690,13 +697,16 @@ class RBluetooth:
                 print("Received: " + str(data))
 
                 if data == b"a":
+                    self.sound_engine.play("FindMy.mp3")
                     pass
         except Exception as e:
             print("Error in rx_interrupt.")
             print(e)
+            self.bluetooth_connected = False
             pass
 
     def close(self):
+        self.sound_engine.pygame.quit()
         if self.bluetooth_rx_thread is not None:
             self.client_sock.close()
             self.bluetooth_rx_thread.join()
