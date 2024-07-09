@@ -661,7 +661,7 @@ class RBluetooth:
                 self.rx_thread = self.threading.Thread(target=self.rx_interrupt, args=(self.client_sock,)).start()
 
                 if self.client_sock:
-                    print("해 냈다 해냈어! devMaxTrauma가 해냈어!")
+                    print("connected.")
                     break
             pass
         except Exception as e:
@@ -697,5 +697,6 @@ class RBluetooth:
     def close(self):
         # self.rx_thread.join()
         self.server_sock.close()
+        self.sound_engine.pygame.quit()
         print("Bluetooth closed.")
         pass
