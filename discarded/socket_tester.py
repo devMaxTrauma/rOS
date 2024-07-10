@@ -1,4 +1,4 @@
-import RKernel as rk
+from discarded import RKernel as rk
 
 rk = rk.RKernel()
 
