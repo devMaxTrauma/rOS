@@ -8,10 +8,8 @@ except ImportError as ie:
 
 print("ROS booted up.")
 
-camera = kernel.get_camera()
-
 while True:
-    frame = kernel.get_frame(camera)
+    frame = kernel.get_frame()
     kernel.raw_screen = frame
     kernel.set_tensor_input()
     kernel.render_tensor_and_etc()
