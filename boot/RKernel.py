@@ -143,6 +143,8 @@ def get_frame(camera):
 def make_ar_frame(frame):
     # make sure that input frame is 320x320
     frame = get_320_320_frame(frame)
+    if frame is None:
+        frame = cv.imread("boot/res/black_screen.jpg")
     # frame input resolution: 320 320
     ar_width = key_engine.get_key("ARDisplayWidth").get("value")
     ar_height = key_engine.get_key("ARDisplayHeight").get("value")
