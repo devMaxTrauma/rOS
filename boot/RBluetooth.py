@@ -100,28 +100,6 @@ def close():
     bluetooth_connected = False
 
     callback = None
-
-    try:
-        client_sock.close()
-    except Exception as e:
-        pass
-
-    try:
-        bluetooth_rx_thread.join()
-        bluetooth_rx_thread = None
-    except Exception as e:
-        pass
-
-    try:
-        try_thread.join()
-        try_thread = None
-    except Exception as e:
-        pass
-
-    try:
-        server_sock.close()
-    except Exception as e:
-        pass
     print("Bluetooth closed.")
 
 

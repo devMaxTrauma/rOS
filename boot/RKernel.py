@@ -82,6 +82,7 @@ splash_screen = cv.imread("boot/res/splash.png")
 #     screen = [[0 for _ in range(320)] for _ in range(320)]
 screen = splash_screen
 raw_screen = splash_screen
+camera = None
 print("variables defined.")
 
 print("defining defs...")
@@ -125,7 +126,8 @@ def get_camera():
     return camera
 
 
-def get_frame(camera):
+def get_frame():
+    global camera
     if "picamera2" in sys.modules:
         frame = camera.capture_array()
         frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
@@ -301,6 +303,7 @@ def set_tensor_input():
 
 def shutdown():
     print("Shutting down...")
+    global camera
     # shutdown thread later
     tensor_engine.stop_process_frame()
     label_engine.erase_memory()
@@ -309,6 +312,15 @@ def shutdown():
         bluetooth_engine.close()
     key_engine.save_keys()
     cv.destroyAllWindows()
+    current_threads = threading.enumerate()
+    for thread in current_threads:
+        if thread.name == "MainThread": continue
+        thread.join()
+        print("Thread " + thread.name + " joined forced.")
+    if "picamera2" in sys.modules:
+        camera.stop()
+    else:
+        camera.release()
     print("Shutdown complete.")
     exit(0)
 
@@ -326,6 +338,7 @@ tensor_engine.fps_engine = fps_engine
 if "boot.RBluetooth" in sys.modules:
     print("callback set.")
     bluetooth_engine.callback = bluetooth_signal_callback
+camera = get_camera()
 
 # set_tensor_input()
 if key_engine.get_key("ROSBootChimeEnabled").get("value"):
