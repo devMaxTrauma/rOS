@@ -76,14 +76,6 @@ print("RKernel imports loaded.")
 
 print("defining variables...")
 splash_screen = cv.imread("boot/res/apple_logo.png")
-# init screen to required size
-# if key_engine.get_key("ROSARDisplayEnabled").get("value"):
-#     # screen size is ARDisplayWidth x ARDisplayHeight and make it dark
-#     ar_width = key_engine.get_key("ARDisplayWidth").get("value")
-#     ar_height = key_engine.get_key("ARDisplayHeight").get("value")
-#     screen = [[0 for _ in range(ar_width)] for _ in range(ar_height)]
-# else:
-#     screen = [[0 for _ in range(320)] for _ in range(320)]
 screen = splash_screen
 raw_screen = splash_screen
 camera = None
@@ -316,15 +308,18 @@ def shutdown():
         bluetooth_engine.close()
     key_engine.save_keys()
     cv.destroyAllWindows()
-    current_threads = threading.enumerate()
-    for thread in current_threads:
-        if thread.name == "MainThread": continue
-        thread.join()
-        print("Thread " + thread.name + " joined forced.")
     if "picamera2" in sys.modules:
         camera.stop()
     else:
         camera.release()
+    current_threads = threading.enumerate()
+    for thread in current_threads:
+        if thread.name == "MainThread": continue
+        print("Thread " + thread.name + " is in running.")
+    if len(current_threads) > 1:
+        print("There are still threads running.")
+        print("Force shutdown.")
+        os._exit(0)
     print("Shutdown complete.")
     os._exit(0)
     exit(0)
