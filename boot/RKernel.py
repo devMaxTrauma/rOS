@@ -313,7 +313,7 @@ def shutdown():
 
 
 def bluetooth_signal_callback(data):
-    print("Received: " + str(data))
+    print("CReceived: " + str(data))
     if data == b"a":
         sound_engine.play("boot/res/FindMy.mp3")
 

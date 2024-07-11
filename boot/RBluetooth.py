@@ -63,16 +63,16 @@ def bluetooth_rx_interrupt():
     global bluetooth_connected
     global client_sock
     global callback
-    print("here1")
     try:
         while bluetooth_connected:
-            print("here2")
             data = client_sock.recv(1024)
             if not data:
                 break
             print("Received: " + str(data))
             if callback is None:
+                print("Callback is None.")
                 continue
+            print("Calling callback.")
             callback(data)
     except Exception as e:
         print("Error in rx_interrupt.")
