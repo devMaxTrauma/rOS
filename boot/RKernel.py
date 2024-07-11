@@ -81,7 +81,7 @@ print("defining defs...")
 
 def get_320_320_frame(raw_frame):
     if raw_frame is None:
-        return None
+        raw_frame = cv.imread("boot/res/black_screen.jpg")
     # make sure the frame is 320x320 and save it to raw_frame
     if raw_frame.shape[0] != 320 or raw_frame.shape[1] != 320:
         # make new_frame but don't flect it
@@ -143,8 +143,6 @@ def get_frame(camera):
 def make_ar_frame(frame):
     # make sure that input frame is 320x320
     frame = get_320_320_frame(frame)
-    if frame is None:
-        frame = cv.imread("boot/res/black_screen.jpg")
     # frame input resolution: 320 320
     ar_width = key_engine.get_key("ARDisplayWidth").get("value")
     ar_height = key_engine.get_key("ARDisplayHeight").get("value")
