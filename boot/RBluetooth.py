@@ -41,8 +41,8 @@ def bluetooth_connect_try():
             server_sock.settimeout(10)
             client_sock, client_info = server_sock.accept()
             print("Accepted connection from", client_info)
-            bluetooth_rx_thread = threading.Thread(target=bluetooth_rx_interrupt).start()
             bluetooth_connected = True
+            bluetooth_rx_thread = threading.Thread(target=bluetooth_rx_interrupt).start()
             if client_sock:
                 print("connected.")
             pass
