@@ -90,14 +90,23 @@ def bluetooth_rx_interrupt():
 def close():
     global bluetooth_rx_thread
     global try_thread
+    global client_sock
+    global server_sock
+    global callback
 
     global bluetooth_connect_try_enabled
     bluetooth_connect_try_enabled = False
     global bluetooth_connected
     bluetooth_connected = False
 
+    callback = None
+
     try:
         client_sock.close()
+    except Exception as e:
+        pass
+
+    try:
         bluetooth_rx_thread.join()
         bluetooth_rx_thread = None
     except Exception as e:
@@ -105,6 +114,7 @@ def close():
 
     try:
         try_thread.join()
+        try_thread = None
     except Exception as e:
         pass
 

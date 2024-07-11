@@ -261,7 +261,7 @@ def render_tensors(tensor_output):
 def render_tensor_and_etc():
     global raw_screen
     new_frame = raw_screen
-    # render tensor todo late
+    # render tensor
     tensor_output = tensor_engine.tensor_output
     if tensor_output is not None:
         boxes, classes, scores = tensor_output
@@ -301,12 +301,11 @@ def set_tensor_input():
 
 def shutdown():
     print("Shutting down...")
-    global tensor_thread
-    # shutdown thread later todo
+    # shutdown thread later
     tensor_engine.stop_process_frame()
     label_engine.erase_memory()
     color_engine.erase_memory()
-    if "picamera2" in sys.modules:
+    if "boot.RBluetooth" in sys.modules:
         bluetooth_engine.close()
     key_engine.save_keys()
     cv.destroyAllWindows()
