@@ -322,7 +322,7 @@ print("defs defined.")
 
 print("preparing RKernel...")
 tensor_engine.fps_engine = fps_engine
-if "bluetooth_engine" in sys.modules:
+if "boot.RBluetooth" in sys.modules:
     print("callback set.")
     bluetooth_engine.callback = bluetooth_signal_callback
 
