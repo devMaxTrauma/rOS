@@ -306,6 +306,7 @@ def shutdown():
     tensor_engine.stop_process_frame()
     label_engine.erase_memory()
     color_engine.erase_memory()
+    bluetooth_engine.close()
     key_engine.save_keys()
     cv.destroyAllWindows()
     print("Shutdown complete.")
