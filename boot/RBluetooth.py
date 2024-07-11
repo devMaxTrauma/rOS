@@ -38,7 +38,6 @@ def try_routine():
     global bluetooth_rx_thread
 
     try:
-        server_sock.settimeout(10)
         client_sock, client_info = server_sock.accept()
         print("Accepted connection from", client_info)
         bluetooth_connected = True
