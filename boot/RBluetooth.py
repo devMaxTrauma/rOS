@@ -46,8 +46,8 @@ def try_routine():
         print("connected.")
     except Exception as e:
         bluetooth_connected = False
-        client_sock.close()
-        bluetooth_rx_thread.join()
+        if client_sock is not None: client_sock.close()
+        if bluetooth_rx_thread is not None: bluetooth_rx_thread.join()
         bluetooth_rx_thread = None
         print("RBluetooth: Error: Error in bluetooth connection.")
         print(e)
@@ -89,7 +89,6 @@ def bluetooth_rx_interrupt():
 
 
 def close():
-    sound_engine.pygame.quit()
     global bluetooth_rx_thread
     global try_thread
 
