@@ -13,7 +13,8 @@ camera = kernel.get_camera()
 while True:
     frame = kernel.get_frame(camera)
     kernel.raw_screen = frame
-    frame = kernel.render_tensor_and_etc(frame)
+    kernel.set_tensor_input()
+    kernel.render_tensor_and_etc()
     kernel.tick_screen()
     if kernel.cv.waitKey(1) & 0xFF == 27:
         break
