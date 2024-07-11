@@ -35,6 +35,10 @@ try:
     import sys
 except ImportError:
     make_error("1007", "sys not found.")
+try:
+    import os
+except ImportError:
+    make_error("1008", "os not found.")
 print("Third Party Imports loaded.")
 
 print("Loading RKernel imports...")
@@ -71,7 +75,7 @@ except ImportError as e:
 print("RKernel imports loaded.")
 
 print("defining variables...")
-splash_screen = cv.imread("boot/res/splash.png")
+splash_screen = cv.imread("boot/res/apple_logo.png")
 # init screen to required size
 # if key_engine.get_key("ROSARDisplayEnabled").get("value"):
 #     # screen size is ARDisplayWidth x ARDisplayHeight and make it dark
@@ -322,6 +326,7 @@ def shutdown():
     else:
         camera.release()
     print("Shutdown complete.")
+    os._exit(0)
     exit(0)
 
 
