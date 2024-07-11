@@ -33,10 +33,11 @@ def try_routine():
         time.sleep(1)
         return
 
+    global client_info
+    global client_sock
+    global bluetooth_rx_thread
+
     try:
-        global client_info
-        global client_sock
-        global bluetooth_rx_thread
         server_sock.settimeout(10)
         client_sock, client_info = server_sock.accept()
         print("Accepted connection from", client_info)
@@ -44,9 +45,6 @@ def try_routine():
         bluetooth_rx_thread = threading.Thread(target=bluetooth_rx_interrupt).start()
         print("connected.")
     except Exception as e:
-        global bluetooth_connected
-        global client_sock
-        global bluetooth_rx_thread
         bluetooth_connected = False
         client_sock.close()
         bluetooth_rx_thread.join()

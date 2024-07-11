@@ -3,9 +3,9 @@ colors = {}
 
 def __read_color_save_line__(color_line):
     global colors
-    if one_color == "\n": return
+    if color_line == "\n": return
     # color format: label_name = #RRGGBB
-    color_data = one_color.split("=")
+    color_data = color_line.split("=")
     color_value = color_data[0].strip()
     color_data = color_data[1].strip()
     color_r = int(color_data[1:3], 16)

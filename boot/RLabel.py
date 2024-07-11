@@ -3,9 +3,9 @@ labels = {}
 
 def read_label_line(label_line):
     global labels
-    if one_label == "\n": return
+    if label_line == "\n": return
     # label format: label = index % average_width
-    label_data = one_label.split("=")
+    label_data = label_line.split("=")
     label_value = label_data[0].strip()
     label_data = label_data[1].split("%")
     label_index = int(label_data[0].strip())

@@ -5,9 +5,9 @@ negative_signs = ["False", "false", "0", "no", "No", "NO", "off", "Off", "OFF", 
 
 def read_key_line(key_line):
     global keys
-    if one_key == "\n": return
+    if key_line == "\n": return
     # key format: <name> name </> <type> str </> <value> hello, world! </> <comment> This is a comment. </>
-    key_data = one_key.split("</>")
+    key_data = key_line.split("</>")
     key_name = key_data[0].split("<name>")[1].strip()
     key_type = key_data[1].split("<type>")[1].strip()
     key_value = key_data[2].split("<value>")[1].strip()
@@ -34,7 +34,6 @@ def read_key_line(key_line):
         key_value = None
 
     keys[key_name] = {"type": key_type, "value": key_value, "comment": key_comment}
-
 
 
 def __load_keys__():
@@ -70,7 +69,8 @@ def set_key(key_name, key_value):
     if key_name in keys:
         keys[key_name]["value"] = key_value
         save_keys()
-        if keys["RKeySetDebugLogOn"].get("value"): print("\nDebug(RKeySetDebugLogOn): Key " + key_name + " set to " + str(key_value) + ".")
+        if keys["RKeySetDebugLogOn"].get("value"): print(
+            "\nDebug(RKeySetDebugLogOn): Key " + key_name + " set to " + str(key_value) + ".")
         return True
     else:
         return False
@@ -95,7 +95,6 @@ def save_key_line(key_name, file):
 
     file.write(
         "<name> " + key_name + " </> <type> " + key_type + " </> <value> " + key_value + " </> <comment> " + key_comment + " </>\n")
-
 
 
 def save_keys():
