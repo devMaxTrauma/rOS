@@ -1,20 +1,27 @@
+colors = {}
+
+
+def __read_color_save_line__(color_line):
+    global colors
+    if one_color == "\n": return
+    # color format: label_name = #RRGGBB
+    color_data = one_color.split("=")
+    color_value = color_data[0].strip()
+    color_data = color_data[1].strip()
+    color_r = int(color_data[1:3], 16)
+    color_g = int(color_data[3:5], 16)
+    color_b = int(color_data[5:7], 16)
+    # rgb2bgr
+    colors[color_value] = (color_b, color_g, color_r)
+
+
 def __load_colors__():
     try:
         r_color_file = open("boot/res/RClassColor.RCC", "r", encoding="utf-8")
         color_list = r_color_file.readlines()
         r_color_file.close()
-        for one_color in color_list:
-            if one_color == "\n":
-                continue
-            # color format: label_name = #RRGGBB
-            color_data = one_color.split("=")
-            color_value = color_data[0].strip()
-            color_data = color_data[1].strip()
-            color_r = int(color_data[1:3], 16)
-            color_g = int(color_data[3:5], 16)
-            color_b = int(color_data[5:7], 16)
-            # rgb2bgr
-            colors[color_value] = (color_b, color_g, color_r)
+        for one_color in color_list: __read_color_save_line__(one_color)
+
     except FileNotFoundError:
         print("RColor.RCL not found.")
         return
@@ -51,6 +58,7 @@ def __load_colors__():
 
 
 def get_color(color_value):
+    global colors
     if color_value in colors:
         return colors[color_value]
     else:
@@ -58,10 +66,10 @@ def get_color(color_value):
 
 
 def erase_memory():
+    global colors
     print("Erasing color memory...")
     colors = {}
     print("Color memory erased.")
 
 
-colors = {}
 __load_colors__()

@@ -1,21 +1,28 @@
+labels = {}
+
+
+def read_label_line(label_line):
+    global labels
+    if one_label == "\n": return
+    # label format: label = index % average_width
+    label_data = one_label.split("=")
+    label_value = label_data[0].strip()
+    label_data = label_data[1].split("%")
+    label_index = int(label_data[0].strip())
+    if len(label_data[1].strip()) > 0:
+        label_average_width = float(label_data[1].strip())
+    else:
+        label_average_width = -1.0
+    labels[label_index] = {"value": label_value, "average_width": label_average_width}
+
+
 def __load_labels__():
+    global labels
     try:
         r_label_file = open("boot/res/RClassLabelEn.RCL", "r", encoding="utf-8")
         label_list = r_label_file.readlines()
         r_label_file.close()
-        for one_label in label_list:
-            if one_label == "\n":
-                continue
-            # label format: label = index % average_width
-            label_data = one_label.split("=")
-            label_value = label_data[0].strip()
-            label_data = label_data[1].split("%")
-            label_index = int(label_data[0].strip())
-            if len(label_data[1].strip()) > 0:
-                label_average_width = float(label_data[1].strip())
-            else:
-                label_average_width = -1.0
-            labels[label_index] = {"value": label_value, "average_width": label_average_width}
+        for one_label in label_list: read_label_line(one_label)
     except FileNotFoundError:
         print("RClassLabelEn.RCL not found.")
         return
@@ -30,10 +37,8 @@ def __load_labels__():
     for label_index in labels:
         label_max_len = max(label_max_len, len(labels[label_index]["value"]))
         index_max_len = max(index_max_len, len(str(label_index)))
-        if labels[label_index]["average_width"] == -1.0:
-            pass
-        else:
-            average_width_max_len = max(average_width_max_len, len(str(labels[label_index]["average_width"])))
+        if labels[label_index]["average_width"] == -1.0: pass
+        else: average_width_max_len = max(average_width_max_len, len(str(labels[label_index]["average_width"])))
 
     print("+" + "-" * (label_max_len + 2) + "+" + "-" * (index_max_len + 2) + "+" + "-" * (
             average_width_max_len + 2) + "+")
@@ -43,8 +48,7 @@ def __load_labels__():
             average_width_max_len + 2) + "+")
     for label_index in labels:
         average_width_specific = labels[label_index]["average_width"]
-        if average_width_specific == -1.0:
-            average_width_specific = ""
+        if average_width_specific == -1.0: average_width_specific = ""
         print("| " + labels[label_index]["value"] + " " * (
                 label_max_len - len(labels[label_index]["value"])) + " | " + str(label_index) + " " * (
                       index_max_len - len(str(label_index))) + " | " + str(
@@ -55,6 +59,7 @@ def __load_labels__():
 
 
 def get_label(label_index):
+    global labels
     if label_index in labels:
         return labels[label_index]
     else:
@@ -62,10 +67,10 @@ def get_label(label_index):
 
 
 def erase_memory():
+    global labels
     print("Erasing label memory...")
     labels = {}
     print("Label memory erased.")
 
 
-labels = {}
 __load_labels__()
