@@ -31,6 +31,10 @@ try:
     import numpy as np
 except ImportError:
     make_error("1006", "numpy not found.")
+try:
+    import sys
+except ImportError:
+    make_error("1007", "sys not found.")
 print("Third Party Imports loaded.")
 
 print("Loading RKernel imports...")
@@ -108,33 +112,25 @@ def make_window():
 
 
 def get_camera():
-    camera_device = key_engine.get_key("CameraDevice").get("value")
-    if camera_device == "macbook pro":
-        camera = cv.VideoCapture(0)
-    elif camera_device == "iphone":
-        camera = cv.VideoCapture(1)
-    elif camera_device == "raspberry pi":
+    if "picamera2" in sys.modules:
         camera = picamera2.Picamera2()
         camera.configure(camera.create_preview_configuration(main={"size": (320, 320)}))
         camera.start()
     else:
-        print("warning! Invalid camera device. Using default device.")
         camera = cv.VideoCapture(0)
     return camera
 
 
 def get_frame(camera):
-    if key_engine.get_key("CameraDevice").get("value") == "raspberry pi":
+    if "picamera2" in sys.modules:
         frame = camera.capture_array()
         frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-        if frame is None:
-            print("raspberry pi camera read failed")
-            return None
     else:
-        capture_success, frame = camera.read()
-        if not capture_success:
-            print("camera read failed")
-            return None
+        frame = camera.read()[1]
+
+    if frame is None:
+        print("camera read failed")
+        return None
 
     # make frame 320x320
     return get_320_320_frame(frame)
@@ -249,7 +245,6 @@ def render_tensor(screen, boxes, classes, scores):
     return screen
 
 
-
 def render_tensors(tensor_output):
     global raw_screen
     boxes, classes, scores = tensor_output
@@ -275,7 +270,7 @@ def render_tensor_and_etc():
         cv.putText(new_frame, "MS FPS: " + str(main_screen_fps), (10, 20), cv.FONT_HERSHEY_SIMPLEX, 0.5,
                    (255, 255, 255), 1, cv.LINE_AA)
         cv.putText(new_frame, " T FPS: " + str(tensor_fps), (10, 40), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255),
-                     1, cv.LINE_AA)
+                   1, cv.LINE_AA)
     global screen
     screen = new_frame
     return new_frame
@@ -284,7 +279,6 @@ def render_tensor_and_etc():
 def tick_screen():
     make_window()
     global screen
-    global main_screen_last_update_time
     if key_engine.get_key("ROSARDisplayEnabled").get("value"):
         cv.imshow("ROS", make_ar_frame(screen))
     else:
@@ -312,6 +306,7 @@ def shutdown():
     cv.destroyAllWindows()
     print("Shutdown complete.")
     exit(0)
+
 
 print("defs defined.")
 
