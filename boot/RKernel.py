@@ -64,6 +64,10 @@ try:
     import boot.RColor as color_engine
 except ImportError:
     make_error("1106", "RColor not found.")
+try:
+    import boot.RBluetooth as bluetooth_engine
+except ImportError as e:
+    print("RBluetooth not found.")
 print("RKernel imports loaded.")
 
 print("defining variables...")
@@ -308,10 +312,18 @@ def shutdown():
     exit(0)
 
 
+def bluetooth_signal_callback(data):
+    print("Received: " + str(data))
+    if data == b"a":
+        sound_engine.play("boot/res/FindMy.mp3")
+
+
 print("defs defined.")
 
 print("preparing RKernel...")
 tensor_engine.fps_engine = fps_engine
+if "bluetooth_engine" in sys.modules:
+    bluetooth_engine.callback = bluetooth_signal_callback
 
 # set_tensor_input()
 if key_engine.get_key("ROSBootChimeEnabled").get("value"):

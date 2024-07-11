@@ -1,54 +1,57 @@
-def __init__(self):
-    self.sound_engine = RSound()
-    self.client_info = None
-    self.client_sock = None
-    self.bluetooth_rx_thread = None
-    self.bluetooth_connected = False
-    self.bluetooth = __import__("bluetooth")
-    self.threading = __import__("threading")
-    self.server_sock = self.bluetooth.BluetoothSocket(self.bluetooth.RFCOMM)
-    self.server_sock.bind(("", self.bluetooth.PORT_ANY))
-    self.server_sock.listen(1)
+try:
+    import bluetooth
+except ImportError:
+    raise ImportError("Bluetooth not found or failed to load.")
+try:
+    import threading
+except ImportError:
+    raise ImportError("Threading not found or failed to load.")
+try:
+    import time
+except ImportError:
+    raise ImportError("Time not found or failed to load.")
 
-    self.port = self.server_sock.getsockname()[1]
-    self.uuid = "00001101-0000-1000-8000-00805F9B34FB"
-    self.service_name = "FindMy"
+client_info = None
+client_sock = None
+bluetooth_rx_thread = None
+bluetooth_connected = False
+server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+server_sock.bind(("", bluetooth.PORT_ANY))
+server_sock.listen(1)
+callback = None
 
-    try:
-        self.bluetooth.advertise_service(self.server_sock, self.service_name,
-                                         service_id=self.uuid,
-                                         service_classes=[self.uuid, self.bluetooth.SERIAL_PORT_CLASS],
-                                         profiles=[self.bluetooth.SERIAL_PORT_PROFILE])
-    except Exception as e:
-        print("Error in bluetooth advertise_service.")
+port = server_sock.getsockname()[1]
+uuid = "00001101-0000-1000-8000-00805F9B34FB"
+service_name = "FindMy"
 
-    self.try_thread = self.threading.Thread(target=self.bluetooth_connect_try).start()
-    print("now you can connect to the bluetooth.")
+bluetooth_connect_try_enabled = True
 
 
-def bluetooth_connect_try(self):
-    while True:
+def bluetooth_connect_try():
+    global bluetooth_connected
+    global client_sock
+    global client_info
+    global bluetooth_rx_thread
+
+    while bluetooth_connect_try_enabled:
         try:
-            if self.bluetooth_connected:
-                import time
+            if bluetooth_connected:
                 time.sleep(1)
                 continue
-            self.server_sock.settimeout(10)
-            self.client_sock, self.client_info = self.server_sock.accept()
-            print("Accepted connection from", self.client_info)
-            self.bluetooth_rx_thread = self.threading.Thread(target=self.bluetooth_rx_interrupt,
-                                                             args=(self.client_sock,)).start()
+            server_sock.settimeout(10)
+            client_sock, client_info = server_sock.accept()
+            print("Accepted connection from", client_info)
+            bluetooth_rx_thread = threading.Thread(target=bluetooth_rx_interrupt).start()
 
-            if self.client_sock:
+            if client_sock:
                 print("connected.")
-                self.bluetooth_connected = True
-                # break
+                bluetooth_connected = True
             pass
         except Exception as e:
-            if self.bluetooth_rx_thread is not None:
-                self.client_sock.close()
-                self.bluetooth_rx_thread.join()
-                self.bluetooth_rx_thread = None
+            if bluetooth_rx_thread is not None:
+                client_sock.close()
+                bluetooth_rx_thread.join()
+                bluetooth_rx_thread = None
                 pass
             print("RBluetooth: Error: Error in bluetooth connection.")
             print(e)
@@ -57,32 +60,60 @@ def bluetooth_connect_try(self):
         pass
 
 
-def bluetooth_rx_interrupt(self, client_sock):
+def bluetooth_rx_interrupt():
+    global bluetooth_connected
+    global client_sock
+    global callback
     try:
-        while True:
+        while bluetooth_connected:
             data = client_sock.recv(1024)
             if not data:
                 break
             print("Received: " + str(data))
-
-            if data == b"a":
-                self.sound_engine.play("FindMy.mp3")
-                pass
+            callback(data)
     except Exception as e:
         print("Error in rx_interrupt.")
         print(e)
-        self.bluetooth_connected = False
+        bluetooth_connected = False
         pass
 
 
-def close(self):
-    self.sound_engine.pygame.quit()
-    if self.bluetooth_rx_thread is not None:
-        self.client_sock.close()
-        self.bluetooth_rx_thread.join()
-        self.bluetooth_rx_thread = None
+def close():
+    sound_engine.pygame.quit()
+    global bluetooth_rx_thread
+    global try_thread
+
+    global bluetooth_connect_try_enabled
+    bluetooth_connect_try_enabled = False
+    global bluetooth_connected
+    bluetooth_connected = False
+
+    try:
+        client_sock.close()
+        bluetooth_rx_thread.join()
+        bluetooth_rx_thread = None
+    except Exception as e:
         pass
-    if self.try_thread is not None:
-        self.try_thread.join()
-    self.server_sock.close()
+
+    try:
+        try_thread.join()
+    except Exception as e:
+        pass
+
+    try:
+        server_sock.close()
+    except Exception as e:
+        pass
     print("Bluetooth closed.")
+
+
+try:
+    bluetooth.advertise_service(server_sock, service_name,
+                                service_id=uuid,
+                                service_classes=[uuid, bluetooth.SERIAL_PORT_CLASS],
+                                profiles=[bluetooth.SERIAL_PORT_PROFILE])
+except Exception as e:
+    print("Error in bluetooth advertise_service.")
+
+try_thread = threading.Thread(target=bluetooth_connect_try).start()
+print("now you can connect to the bluetooth.")
