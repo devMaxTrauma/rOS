@@ -27,6 +27,37 @@ service_name = "FindMy"
 bluetooth_connect_try_enabled = True
 
 
+def try_routine():
+    global bluetooth_connected
+    if bluetooth_connected:
+        time.sleep(1)
+        return
+
+    try:
+        global client_info
+        global client_sock
+        global bluetooth_rx_thread
+        server_sock.settimeout(10)
+        client_sock, client_info = server_sock.accept()
+        print("Accepted connection from", client_info)
+        bluetooth_connected = True
+        bluetooth_rx_thread = threading.Thread(target=bluetooth_rx_interrupt).start()
+        print("connected.")
+    except Exception as e:
+        global bluetooth_connected
+        global client_sock
+        global bluetooth_rx_thread
+        bluetooth_connected = False
+        client_sock.close()
+        bluetooth_rx_thread.join()
+        bluetooth_rx_thread = None
+        print("RBluetooth: Error: Error in bluetooth connection.")
+        print(e)
+        print("RBluetooth: retrying...")
+        pass
+    pass
+
+
 def bluetooth_connect_try():
     global bluetooth_connected
     global client_sock
@@ -34,29 +65,16 @@ def bluetooth_connect_try():
     global bluetooth_rx_thread
 
     while bluetooth_connect_try_enabled:
-        try:
-            if bluetooth_connected:
-                time.sleep(1)
-                continue
-            server_sock.settimeout(10)
-            client_sock, client_info = server_sock.accept()
-            print("Accepted connection from", client_info)
-            bluetooth_connected = True
-            bluetooth_rx_thread = threading.Thread(target=bluetooth_rx_interrupt).start()
-            if client_sock:
-                print("connected.")
-            pass
-        except Exception as e:
-            if bluetooth_rx_thread is not None:
-                client_sock.close()
-                bluetooth_rx_thread.join()
-                bluetooth_rx_thread = None
-                pass
-            print("RBluetooth: Error: Error in bluetooth connection.")
-            print(e)
-            print("RBluetooth: retrying...")
-            pass
-        pass
+        try_routine()
+
+
+def recv():
+    while bluetooth_connected:
+        data = client_sock.recv(1024)
+        if not data: break
+        print("Received: " + str(data))
+        if callback is None: continue
+        callback(data)
 
 
 def bluetooth_rx_interrupt():
@@ -64,16 +82,7 @@ def bluetooth_rx_interrupt():
     global client_sock
     global callback
     try:
-        while bluetooth_connected:
-            data = client_sock.recv(1024)
-            if not data:
-                break
-            print("Received: " + str(data))
-            if callback is None:
-                print("Callback is None.")
-                continue
-            print("Calling callback.")
-            callback(data)
+        recv()
     except Exception as e:
         print("Error in rx_interrupt.")
         print(e)
