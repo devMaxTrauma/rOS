@@ -138,6 +138,42 @@ def get_frame():
     return get_320_320_frame(frame)
 
 
+def calculate_distance(class_index:int, box_width_pixel):
+    if "picamera2" in sys.modules:
+        distance_calculate_constant = key_engine.get_key("ROSObjectDistanceCalculateConstantRaspberryPi").get("value")
+    else:
+        distance_calculate_constant = key_engine.get_key("ROSObjectDistanceCalculateConstantMacBookPro").get("value")
+
+    if label_engine.get_label(class_index+1) is None:
+        object_average_width = -1.0
+    else:
+        object_average_width = label_engine.get_label(class_index+1).get("average_width")
+
+    if object_average_width == -1.0:
+        return str("N/A")
+
+    distance_in_meter = object_average_width/(box_width_pixel/distance_calculate_constant)
+    unit = key_engine.get_key("DistanceUnit").get("value")
+    if unit == "SI" and distance_in_meter < 1:
+        return str(round(distance_in_meter * 100, 2)) + " cm"
+    elif unit == "SI" and distance_in_meter <= 1000:
+        return str(round(distance_in_meter, 2)) + " m"
+    elif unit == "SI" and distance_in_meter > 1000:
+        return str(round(distance_in_meter / 1000, 2)) + " km"
+    elif unit == "US" and distance_in_meter < 0.3048:
+        return str(round(distance_in_meter * 39.3701, 2)) + " in"
+    elif unit == "US" and distance_in_meter <= 0.9144:
+        return str(round(distance_in_meter * 3.28084, 2)) + " ft"
+    elif unit == "US" and distance_in_meter <= 1609.34:
+        return str(round(distance_in_meter * 1.09361, 2)) + " yd"
+    elif unit == "US" and distance_in_meter > 1609.34:
+        return str(round(distance_in_meter / 1609.34, 2)) + " mi"
+    else:
+        return str("ERR")
+
+
+
+
 def make_ar_frame(frame):
     # make sure that input frame is 320x320
     frame = get_320_320_frame(frame)
@@ -218,15 +254,15 @@ def make_ar_frame(frame):
     return ar_screen
 
 
-def render_tensor(screen, boxes, classes, scores):
+def render_tensor(screen, boxes, classes, scores, distance):
     if scores < 0.5:
         return screen
     box = boxes * [320, 320, 320, 320]
     class_name = label_engine.get_label(int(classes + 1)).get("value")
     class_color = color_engine.get_color(class_name)
+    inverted_color = (255 - class_color[0], 255 - class_color[1], 255 - class_color[2])
     text_x, text_y = 0, 0  # for text position
     if key_engine.get_key("ROSMindDisplayWay").get("value") == "filled box":
-        inverted_color = (255 - class_color[0], 255 - class_color[1], 255 - class_color[2])
         # outer line
         cv.rectangle(screen, (int(box[1]), int(box[0]), int(box[3]), int(box[2])), inverted_color, 2)
         # inner box
@@ -244,15 +280,19 @@ def render_tensor(screen, boxes, classes, scores):
         cv.putText(screen, class_name, (text_x, text_y), cv.FONT_HERSHEY_SIMPLEX, 0.5,
                    class_color, 2)
 
+    if key_engine.get_key("DistanceDisplayEnabled").get("value"):
+        cv.putText(screen, str(distance), (text_x, text_y + 20), cv.FONT_HERSHEY_SIMPLEX, 0.5,
+                   inverted_color, 1, cv.LINE_AA)
+
     return screen
 
 
 def render_tensors(tensor_output):
     global raw_screen
-    boxes, classes, scores = tensor_output
+    boxes, classes, scores, distance = tensor_output
     in_print_screen = raw_screen
     for i in range(len(scores)):
-        in_print_screen = render_tensor(in_print_screen, boxes[i], classes[i], scores[i])
+        in_print_screen = render_tensor(in_print_screen, boxes[i], classes[i], scores[i], distance[i])
     return in_print_screen
 
 
@@ -262,7 +302,6 @@ def render_tensor_and_etc():
     # render tensor
     tensor_output = tensor_engine.tensor_output
     if tensor_output is not None:
-        boxes, classes, scores = tensor_output
         new_frame = render_tensors(tensor_output)
     # render etc
     # render fps
@@ -335,6 +374,7 @@ print("defs defined.")
 
 print("preparing RKernel...")
 tensor_engine.fps_engine = fps_engine
+tensor_engine.calculate_distance_function = calculate_distance
 if "boot.RBluetooth" in sys.modules:
     print("callback set.")
     bluetooth_engine.callback = bluetooth_signal_callback

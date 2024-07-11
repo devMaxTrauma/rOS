@@ -33,6 +33,7 @@ tensor_output = None
 raw_data = None
 fps_engine = None
 tensor_running = True
+calculate_distance_function = None
 
 
 def process_frame():
@@ -55,9 +56,17 @@ def process_frame():
     boxes = model.get_tensor(model_output_details[boxes_idx]['index'])[0]
     classes = model.get_tensor(model_output_details[classes_idx]['index'])[0]
     scores = model.get_tensor(model_output_details[scores_idx]['index'])[0]
+    distances = [None] * len(boxes)
+
+    for i in range(len(boxes)):
+        if scores[i] < 0.5: continue
+        # get box width
+        box_width = (boxes[i][3] - boxes[i][1]) * 320
+        if calculate_distance_function is not None: distances[i] = calculate_distance_function(classes[i], box_width)
+        else: distances[i] = None
 
     global tensor_output
-    tensor_output = (boxes, classes, scores)
+    tensor_output = (boxes, classes, scores, distances)
 
     global fps_engine
     if fps_engine is not None:
