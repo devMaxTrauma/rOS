@@ -42,10 +42,9 @@ def bluetooth_connect_try():
             client_sock, client_info = server_sock.accept()
             print("Accepted connection from", client_info)
             bluetooth_rx_thread = threading.Thread(target=bluetooth_rx_interrupt).start()
-
+            bluetooth_connected = True
             if client_sock:
                 print("connected.")
-                bluetooth_connected = True
             pass
         except Exception as e:
             if bluetooth_rx_thread is not None:
@@ -66,10 +65,13 @@ def bluetooth_rx_interrupt():
     global callback
     try:
         while bluetooth_connected:
+
             data = client_sock.recv(1024)
             if not data:
                 break
             print("Received: " + str(data))
+            if callback is None:
+                continue
             callback(data)
     except Exception as e:
         print("Error in rx_interrupt.")
