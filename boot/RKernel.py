@@ -80,6 +80,7 @@ screen = splash_screen
 raw_screen = splash_screen
 camera = None
 find_my_keep_sounding_channel = None
+find_my_sounding_one_channel = None
 print("variables defined.")
 
 print("defining defs...")
@@ -364,13 +365,19 @@ def shutdown():
     exit(0)
 
 
+def bluetooth_connected_callback():
+    sound_engine.play("boot/res/alert.mp3")
+    print("Bluetooth connected.")
+
+
 def bluetooth_signal_callback(data):
+    global find_my_sounding_one_channel
     global find_my_keep_sounding_channel
-    print("CReceived: " + str(data))
     if data == b"a":
-        sound_engine.play("boot/res/FindMy.mp3")
+        if find_my_sounding_one_channel is not None: return
+        find_my_sounding_one_channel = sound_engine.play("boot/res/FindMy.mp3")
     elif data == b"b":
-        find_my_keep_sounding_channel = sound_engine.play("boot/res/alert.mp3")
+        find_my_keep_sounding_channel = sound_engine.play("boot/res/FindMy.mp3", -1)
         pass
     elif data == b"c":
         sound_engine.stop(find_my_keep_sounding_channel)
@@ -384,7 +391,8 @@ tensor_engine.fps_engine = fps_engine
 tensor_engine.calculate_distance_function = calculate_distance
 if "boot.RBluetooth" in sys.modules:
     print("callback set.")
-    bluetooth_engine.callback = bluetooth_signal_callback
+    bluetooth_engine.connected_callback = bluetooth_connected_callback
+    bluetooth_engine.recv_callback = bluetooth_signal_callback
 camera = get_camera()
 
 # set_tensor_input()

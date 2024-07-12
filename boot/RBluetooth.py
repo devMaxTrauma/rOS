@@ -18,7 +18,9 @@ bluetooth_connected = False
 server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 server_sock.bind(("", bluetooth.PORT_ANY))
 server_sock.listen(1)
-callback = None
+connected_callback = None
+recv_callback = None
+
 
 port = server_sock.getsockname()[1]
 uuid = "00001101-0000-1000-8000-00805F9B34FB"
@@ -42,7 +44,7 @@ def try_routine():
         print("Accepted connection from", client_info)
         bluetooth_connected = True
         bluetooth_rx_thread = threading.Thread(target=bluetooth_rx_interrupt).start()
-        print("connected.")
+        if connected_callback is not None: connected_callback()
     except Exception as e:
         bluetooth_connected = False
         if client_sock is not None: client_sock.close()
@@ -70,14 +72,14 @@ def recv():
         data = client_sock.recv(1024)
         if not data: break
         print("Received: " + str(data))
-        if callback is None: continue
-        callback(data)
+        if recv_callback is None: continue
+        recv_callback(data)
 
 
 def bluetooth_rx_interrupt():
     global bluetooth_connected
     global client_sock
-    global callback
+    global recv_callback
     try:
         recv()
     except Exception as e:
@@ -92,14 +94,14 @@ def close():
     global try_thread
     global client_sock
     global server_sock
-    global callback
+    global recv_callback
 
     global bluetooth_connect_try_enabled
     bluetooth_connect_try_enabled = False
     global bluetooth_connected
     bluetooth_connected = False
 
-    callback = None
+    recv_callback = None
     print("Bluetooth closed.")
 
 
