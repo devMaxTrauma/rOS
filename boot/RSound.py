@@ -23,11 +23,12 @@ def _running():
         if not channels: break
 
 
-def play(sound_path):
+def play(sound_path, repeat=0):
     global running_thread
+    global channels
     channel = pygame.mixer.Channel(len(channels))
     sound = pygame.mixer.Sound(sound_path)
-    channel.play(sound)
+    channel.play(sound, repeat)
     channels.append(channel)
     if running_thread is None or not running_thread.is_alive():
         running_thread = threading.Thread(target=_running).start()

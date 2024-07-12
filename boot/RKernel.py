@@ -79,6 +79,7 @@ splash_screen = cv.imread("boot/res/apple_logo.png")
 screen = splash_screen
 raw_screen = splash_screen
 camera = None
+find_my_keep_sounding_channel = None
 print("variables defined.")
 
 print("defining defs...")
@@ -360,14 +361,20 @@ def shutdown():
         print("Force shutdown.")
         os._exit(0)
     print("Shutdown complete.")
-    os._exit(0)
     exit(0)
 
 
 def bluetooth_signal_callback(data):
+    global find_my_keep_sounding_channel
     print("CReceived: " + str(data))
     if data == b"a":
         sound_engine.play("boot/res/FindMy.mp3")
+    elif data == b"b":
+        find_my_keep_sounding_channel = sound_engine.play("boot/res/alert.mp3")
+        pass
+    elif data == b"c":
+        sound_engine.stop(find_my_keep_sounding_channel)
+        pass
 
 
 print("defs defined.")
