@@ -1,6 +1,6 @@
-<name> ROSVersion </> <type> str </> <value> EdgeRunner.1 </> <comment> ROSVersion </>
+<name> ROSVersion </> <type> str </> <value> EdgeRunner.2 </> <comment> ROSVersion </>
 <name> ROSBootChimeEnabled </> <type> bool </> <value> True </> <comment> ROSBootChimeEnabledNoticeROS boot chime is enabled or not </>
-<name> ROSSplashScreenTime </> <type> int </> <value> 5 </> <comment> ROSSplashScreenTimeNoticeROS splash screen time </>
+<name> ROSSplashScreenTime </> <type> int </> <value> 8 </> <comment> ROSSplashScreenTimeNoticeROS splash screen time </>
 <name> ROSIsOn </> <type> bool </> <value> False </> <comment> ROSIsOnNoticeROS is shutdown properly </>
 <name> BootDebugLogOn </> <type> bool </> <value> False </> <comment> BootDebugLogOnNoticeBoot debug log is on or off </>
 <name> RKeySetDebugLogOn </> <type> bool </> <value> False </> <comment> RKeySetDebugLogOnNoticeRKeySet debug log is on or off </>
@@ -27,3 +27,4 @@
 <name> ROSObjectDistanceCalculateConstantRaspberryPi </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantRaspberryPiNoticeROS object distance calculate constant for Raspberry Pi </>
 <name> ROSObjectDistanceCalculateConstantMacBookPro </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantMacBookProNoticeROS object distance calculate constant for MacBook Pro </>
 <name> ROSObjectDistanceCalculateConstantIphone </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantIphoneNoticeROS object distance calculate constant for iPhone </>
+<name> SoundVolume </> <type> float </> <value> 0.3 </> <comment> SoundVolumeNoticeSound volume </>

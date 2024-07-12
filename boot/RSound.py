@@ -9,6 +9,7 @@ except ImportError:
 
 channels = []
 running_thread = None
+overall_volume = 1.0
 
 
 def _check_channel(channel):
@@ -23,11 +24,12 @@ def _running():
         if not channels: break
 
 
-def play(sound_path, repeat=0):
+def play(sound_path, repeat=0, volume=1.0):
     global running_thread
     global channels
     channel = pygame.mixer.Channel(len(channels))
     sound = pygame.mixer.Sound(sound_path)
+    sound.set_volume(volume * overall_volume)
     channel.play(sound, repeat)
     channels.append(channel)
     if running_thread is None or not running_thread.is_alive():
@@ -52,4 +54,5 @@ def shutdown():
 
 
 pygame.init()
+pygame.mixer.init()
 running_thread = threading.Thread(target=_running).start()

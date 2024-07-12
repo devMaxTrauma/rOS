@@ -78,9 +78,13 @@ print("defining variables...")
 splash_screen = cv.imread("boot/res/apple_logo.png")
 screen = splash_screen
 raw_screen = splash_screen
+black_screen = cv.imread("boot/res/black_screen.jpg")
+kernel_panic_screen = cv.imread("boot/res/kernel_panic.png")
+kernel_panicked = False
 camera = None
 find_my_keep_sounding_channel = None
 find_my_sounding_one_channel = None
+boot_loading_bar = 0
 print("variables defined.")
 
 print("defining defs...")
@@ -88,7 +92,9 @@ print("defining defs...")
 
 def get_320_320_frame(raw_frame):
     if raw_frame is None:
-        raw_frame = cv.imread("boot/res/black_screen.jpg")
+        global kernel_panicked
+        kernel_panicked = True
+        raw_frame = kernel_panic_screen
     # make sure the frame is 320x320 and save it to raw_frame
     if raw_frame.shape[0] != 320 or raw_frame.shape[1] != 320:
         # make new_frame but don't flect it
@@ -125,6 +131,9 @@ def get_camera():
 
 
 def get_frame():
+    global kernel_panicked
+    if kernel_panicked:
+        return get_320_320_frame(kernel_panic_screen)
     global camera
     if "picamera2" in sys.modules:
         frame = camera.capture_array()
@@ -134,27 +143,28 @@ def get_frame():
 
     if frame is None:
         print("camera read failed")
+        kernel_panicked = True
         return None
 
     # make frame 320x320
     return get_320_320_frame(frame)
 
 
-def calculate_distance(class_index:int, box_width_pixel):
+def calculate_distance(class_index: int, box_width_pixel):
     if "picamera2" in sys.modules:
         distance_calculate_constant = key_engine.get_key("ROSObjectDistanceCalculateConstantRaspberryPi").get("value")
     else:
         distance_calculate_constant = key_engine.get_key("ROSObjectDistanceCalculateConstantMacBookPro").get("value")
 
-    if label_engine.get_label(class_index+1) is None:
+    if label_engine.get_label(class_index + 1) is None:
         object_average_width = -1.0
     else:
-        object_average_width = label_engine.get_label(class_index+1).get("average_width")
+        object_average_width = label_engine.get_label(class_index + 1).get("average_width")
 
     if object_average_width == -1.0:
         return str("N/A")
 
-    distance_in_meter = object_average_width/(box_width_pixel/distance_calculate_constant)
+    distance_in_meter = object_average_width / (box_width_pixel / distance_calculate_constant)
     unit = key_engine.get_key("DistanceUnit").get("value")
     if unit == "SI" and distance_in_meter < 1:
         return str(round(distance_in_meter * 100, 2)) + " cm"
@@ -172,8 +182,6 @@ def calculate_distance(class_index:int, box_width_pixel):
         return str(round(distance_in_meter / 1609.34, 2)) + " mi"
     else:
         return str("ERR")
-
-
 
 
 def make_ar_frame(frame):
@@ -320,8 +328,11 @@ def render_tensor_and_etc():
 
 
 def tick_screen():
-    make_window()
+    global kernel_panicked
     global screen
+    if kernel_panicked:
+        screen = kernel_panic_screen
+    make_window()
     if key_engine.get_key("ROSARDisplayEnabled").get("value"):
         cv.imshow("ROS", make_ar_frame(screen))
     else:
@@ -384,6 +395,43 @@ def bluetooth_signal_callback(data):
         pass
 
 
+def boot_logo(started_ticks: float):
+    global screen
+    screen = black_screen
+    global splash_screen
+    resized_splash_screen = cv.resize(splash_screen, (80, 80))
+    screen[120:200, 120:200] = resized_splash_screen
+
+    # cv.putText(screen, "ROS", (10, 20), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+    boot_progress = 0
+    if started_ticks < 3:
+        boot_progress = started_ticks * 10.0
+        pass
+    elif started_ticks < 5:
+        boot_progress = 30 + (started_ticks - 3) * 30.0
+        pass
+    elif started_ticks < 6.5:
+        boot_progress = 90 + 10/1.5 * (started_ticks - 5)
+        pass
+    else:
+        boot_progress = 100
+        pass
+
+    progress_bar_width_margin = 40
+    progress_bar_height_margin = 10
+    progress_bar_height = 5
+    progress_bar_width = 320 - progress_bar_width_margin * 2
+    progress_bar_cornor_radius = progress_bar_height // 2
+    # progress bar background
+    cv.circle(screen, (progress_bar_width_margin + progress_bar_cornor_radius, 320 - progress_bar_height_margin - progress_bar_cornor_radius), progress_bar_cornor_radius, (64, 64, 64), -1)
+    cv.circle(screen, (320 - progress_bar_width_margin - progress_bar_cornor_radius, 320 - progress_bar_height_margin - progress_bar_cornor_radius), progress_bar_cornor_radius, (64, 64, 64), -1)
+    cv.rectangle(screen, (progress_bar_width_margin + progress_bar_cornor_radius, 320 - progress_bar_height_margin - progress_bar_height), (320 - progress_bar_width_margin - progress_bar_cornor_radius, 320 - progress_bar_height_margin), (64, 64, 64), -1)
+    # progress bar
+    cv.circle(screen, (progress_bar_width_margin + progress_bar_cornor_radius, 320 - progress_bar_height_margin - progress_bar_cornor_radius), progress_bar_cornor_radius, (255, 255, 255), -1)
+    cv.rectangle(screen, (progress_bar_width_margin + progress_bar_cornor_radius, 320 - progress_bar_height_margin - progress_bar_height), (int(progress_bar_width_margin + progress_bar_cornor_radius + (320 - progress_bar_width_margin - progress_bar_cornor_radius - progress_bar_width_margin - progress_bar_cornor_radius) * (boot_progress / 100)), 320 - progress_bar_height_margin), (255, 255, 255), -1)
+    cv.circle(screen, (int(progress_bar_width_margin + progress_bar_cornor_radius + (320 - progress_bar_width_margin - progress_bar_cornor_radius - progress_bar_width_margin - progress_bar_cornor_radius) * (boot_progress / 100)), 320 - progress_bar_height_margin - progress_bar_cornor_radius), progress_bar_cornor_radius, (255, 255, 255), -1)
+
+
 print("defs defined.")
 
 print("preparing RKernel...")
@@ -394,6 +442,8 @@ if "boot.RBluetooth" in sys.modules:
     bluetooth_engine.connected_callback = bluetooth_connected_callback
     bluetooth_engine.recv_callback = bluetooth_signal_callback
 camera = get_camera()
+sound_engine.overall_volume = key_engine.get_key("SoundVolume").get("value")
+print("RKernel prepared.")
 
 # set_tensor_input()
 if key_engine.get_key("ROSBootChimeEnabled").get("value"):
@@ -402,6 +452,7 @@ if key_engine.get_key("ROSBootChimeEnabled").get("value"):
 started_time = time.time()
 splash_display_time = key_engine.get_key("ROSSplashScreenTime").get("value")
 while time.time() - started_time < splash_display_time:
+    boot_logo(time.time() - started_time)
     tick_screen()
     if cv.waitKey(1) & 0xFF == 27:
         shutdown()
