@@ -374,7 +374,7 @@ def bluetooth_signal_callback(data):
     global find_my_sounding_one_channel
     global find_my_keep_sounding_channel
     if data == b"a":
-        if find_my_sounding_one_channel is not None: return
+        sound_engine.stop(find_my_sounding_one_channel)
         find_my_sounding_one_channel = sound_engine.play("boot/res/FindMy.mp3")
     elif data == b"b":
         find_my_keep_sounding_channel = sound_engine.play("boot/res/FindMy.mp3", -1)

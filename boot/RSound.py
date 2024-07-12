@@ -36,6 +36,8 @@ def play(sound_path, repeat=0):
 
 
 def stop(channel):
+    global channels
+    if not channel in channels: return
     channel.stop()
     channels.remove(channel)
 
