@@ -72,6 +72,11 @@ try:
     import boot.RBluetooth as bluetooth_engine
 except ImportError as e:
     print("RBluetooth not found.")
+try:
+    import boot.RNotification as notification_engine
+except ImportError:
+    make_error("1108", "RNotification not found.")
+
 print("RKernel imports loaded.")
 
 print("defining variables...")
@@ -84,7 +89,10 @@ kernel_panicked = False
 camera = None
 find_my_keep_sounding_channel = None
 find_my_sounding_one_channel = None
+find_my_notification = None
 boot_loading_bar = 0
+hard_warning_icon = cv.imread("boot/res/hard_warning.png")
+warning_icon = cv.imread("boot/res/warning.png")
 print("variables defined.")
 
 print("defining defs...")
@@ -145,6 +153,14 @@ def get_frame():
         print("camera read failed")
         kernel_panicked = True
         return None
+
+    # check brightness
+    frame_average_red = np.average(frame[:, :, 2])
+    frame_average_green = np.average(frame[:, :, 1])
+    frame_average_blue = np.average(frame[:, :, 0])
+    frame_average_brightness = (frame_average_red + frame_average_green + frame_average_blue) / 3
+    if frame_average_brightness < 100 and notification_engine.get_notification(message="Low brightness detected.") is None:
+        notification_engine.add_notification("hard_warning.png", "Low brightness detected.")
 
     # make frame 320x320
     return get_320_320_frame(frame)
@@ -306,6 +322,84 @@ def render_tensors(tensor_output):
     return in_print_screen
 
 
+def render_notifications(frame, notifications):
+    one_notification_max_height = 40
+    one_notification_width = 260
+    notification_start_y = 10
+    printed_y_pixel = 0
+
+    global black_screen
+    global hard_warning_icon
+
+    for i in range(len(notifications)):
+        # draw notification
+        this_notification_height = int(one_notification_max_height * notifications[i].display_visibility)
+        this_notification_width = int(one_notification_width * notifications[i].display_visibility)
+        this_notification_start_x = (320 - this_notification_width) // 2
+        this_notification_radius = int(this_notification_height // 2)
+        cv.circle(frame, (this_notification_start_x + this_notification_radius,
+                          notification_start_y + this_notification_radius + printed_y_pixel),
+                  this_notification_radius, (255, 255, 255), -1)
+        cv.circle(frame, (this_notification_start_x + this_notification_width - this_notification_radius,
+                          notification_start_y + this_notification_radius + printed_y_pixel),
+                  this_notification_radius, (255, 255, 255), -1)
+        cv.rectangle(frame, (this_notification_start_x + this_notification_radius, notification_start_y + printed_y_pixel),
+                     (this_notification_start_x + this_notification_width - this_notification_radius,
+                      notification_start_y + printed_y_pixel + this_notification_height), (255, 255, 255), -1)
+        printed_y_pixel += this_notification_height
+
+    printed_y_pixel = 0
+    for i in range(len(notifications)-1):
+        upper_notification_height = int(one_notification_max_height * notifications[i].display_visibility)
+        lower_notification_height = int(one_notification_max_height * notifications[i + 1].display_visibility)
+        upper_notification_radius = int(upper_notification_height // 2)
+        lower_notification_radius = int(lower_notification_height // 2)
+        upper_notification_width = int(one_notification_width * notifications[i].display_visibility)
+        lower_notification_width = int(one_notification_width * notifications[i + 1].display_visibility)
+        upper_notification_start_x = (320 - upper_notification_width) // 2
+        lower_notification_start_x = (320 - lower_notification_width) // 2
+        this_notification_width = min(upper_notification_width, lower_notification_width)
+        this_notification_start_x = max(upper_notification_start_x, lower_notification_start_x)
+
+        max_circle_radius = max(upper_notification_radius, lower_notification_radius)
+        cv.rectangle(frame, (this_notification_start_x, notification_start_y + printed_y_pixel + upper_notification_radius),
+                     (this_notification_start_x + max_circle_radius, notification_start_y + printed_y_pixel + upper_notification_height + lower_notification_radius), (255, 255, 255), -1)
+        cv.rectangle(frame, (this_notification_start_x + this_notification_width - max_circle_radius, notification_start_y + printed_y_pixel + upper_notification_radius),
+                        (this_notification_start_x + this_notification_width, notification_start_y + printed_y_pixel + upper_notification_height + lower_notification_radius), (255, 255, 255), -1)
+        divide_bar_height = 2
+        cv.rectangle(frame, (this_notification_start_x, notification_start_y + printed_y_pixel + upper_notification_height- divide_bar_height//2),
+                     (this_notification_start_x + this_notification_width, notification_start_y + printed_y_pixel + upper_notification_height + divide_bar_height//2), (200, 200, 200), -1)
+        printed_y_pixel += upper_notification_height
+
+    printed_y_pixel = 0
+    printed_y_pixel_after = 0
+    # now draw notification
+    for i in range(len(notifications)):
+        printed_y_pixel += printed_y_pixel_after
+        this_notification_height = int(one_notification_max_height * notifications[i].display_visibility)
+        printed_y_pixel_after = this_notification_height
+        if this_notification_height <=10: continue
+        this_notification_width = int(one_notification_width * notifications[i].display_visibility)
+        this_notification_start_x = (320 - this_notification_width) // 2
+        this_notification_radius = int(this_notification_height // 2)
+        this_notification_image_size = this_notification_height - 10
+        if this_notification_image_size <= 0: continue
+        icon = cv.resize(black_screen, (this_notification_image_size, this_notification_image_size))
+        if notifications[i].icon == "hard_warning.png": icon = cv.resize(hard_warning_icon, (this_notification_image_size, this_notification_image_size))
+        elif notifications[i].icon == "warning.png": icon = cv.resize(warning_icon, (this_notification_image_size, this_notification_image_size))
+        frame[notification_start_y + 5 + printed_y_pixel:notification_start_y + 5 + printed_y_pixel + this_notification_image_size,
+                this_notification_start_x + 5:this_notification_start_x + 5 + this_notification_image_size] = icon
+        string_able_pixel_width = this_notification_width - this_notification_image_size - 10
+        string_able_pixel_height = this_notification_height - 10
+        string_max_length = string_able_pixel_width // 10
+        string = notifications[i].message
+        if len(string) > string_max_length: string = string[:string_max_length] + "..."
+        cv.putText(frame, string, (this_notification_start_x + this_notification_image_size + 10, notification_start_y + 5 + printed_y_pixel + this_notification_height // 2 + 5), cv.FONT_HERSHEY_SIMPLEX, 0.5,
+                   (64, 64, 64), 1, cv.LINE_AA)
+
+    return frame
+
+
 def render_tensor_and_etc():
     global raw_screen
     new_frame = raw_screen
@@ -314,6 +408,13 @@ def render_tensor_and_etc():
     if tensor_output is not None:
         new_frame = render_tensors(tensor_output)
     # render etc
+    # render notifications
+    notifications_count = len(notification_engine.notifications)
+    try:
+        if notifications_count > 0: new_frame = render_notifications(new_frame, notification_engine.notifications)
+    except Exception as e:
+        print("Error while rendering notifications.")
+        print(e)
     # render fps
     if key_engine.get_key("ROSDisplayFPSEnable").get("value"):
         main_screen_fps = round(fps_engine.get_main_screen_fps(), 2)
@@ -339,6 +440,10 @@ def tick_screen():
         cv.imshow("ROS", screen)
 
     fps_engine.add_candidate_main_fps()
+    if fps_engine.get_main_screen_fps() < 20 and notification_engine.get_notification(message="Low FPS detected.") is None:
+        notification_engine.add_notification("warning.png", "Low FPS detected.")
+    if fps_engine.get_tensor_fps() < 15 and notification_engine.get_notification(message="Low Tensor FPS detected.") is None:
+        notification_engine.add_notification("warning.png", "Low Tensor FPS detected.")
 
 
 def set_tensor_input():
@@ -352,6 +457,7 @@ def set_tensor_input():
 def shutdown():
     print("Shutting down...")
     global camera
+    notification_engine.add_notification("hard_warning.png", "Shutting down...")
     # shutdown thread later
     tensor_engine.stop_process_frame()
     label_engine.erase_memory()
@@ -364,6 +470,7 @@ def shutdown():
         camera.stop()
     else:
         camera.release()
+    notification_engine.close()
     current_threads = threading.enumerate()
     for thread in current_threads:
         if thread.name == "MainThread": continue
@@ -384,14 +491,19 @@ def bluetooth_connected_callback():
 def bluetooth_signal_callback(data):
     global find_my_sounding_one_channel
     global find_my_keep_sounding_channel
+    global find_my_notification
     if data == b"a":
         sound_engine.stop(find_my_sounding_one_channel)
         find_my_sounding_one_channel = sound_engine.play("boot/res/FindMy.mp3")
+        notification_engine.add_notification("warning.png", "Find My is activated.")
     elif data == b"b":
         find_my_keep_sounding_channel = sound_engine.play("boot/res/FindMy.mp3", -1)
+        find_my_notification = notification_engine.add_notification("warning.png", "Find My is activated.")
+        find_my_notification.display_duration = 1000000
         pass
     elif data == b"c":
         sound_engine.stop(find_my_keep_sounding_channel)
+        find_my_notification.display_duration = 0
         pass
 
 
@@ -411,7 +523,7 @@ def boot_logo(started_ticks: float):
         boot_progress = 30 + (started_ticks - 3) * 30.0
         pass
     elif started_ticks < 6.5:
-        boot_progress = 90 + 10/1.5 * (started_ticks - 5)
+        boot_progress = 90 + 10 / 1.5 * (started_ticks - 5)
         pass
     else:
         boot_progress = 100
@@ -423,13 +535,31 @@ def boot_logo(started_ticks: float):
     progress_bar_width = 320 - progress_bar_width_margin * 2
     progress_bar_cornor_radius = progress_bar_height // 2
     # progress bar background
-    cv.circle(screen, (progress_bar_width_margin + progress_bar_cornor_radius, 320 - progress_bar_height_margin - progress_bar_cornor_radius), progress_bar_cornor_radius, (64, 64, 64), -1)
-    cv.circle(screen, (320 - progress_bar_width_margin - progress_bar_cornor_radius, 320 - progress_bar_height_margin - progress_bar_cornor_radius), progress_bar_cornor_radius, (64, 64, 64), -1)
-    cv.rectangle(screen, (progress_bar_width_margin + progress_bar_cornor_radius, 320 - progress_bar_height_margin - progress_bar_height), (320 - progress_bar_width_margin - progress_bar_cornor_radius, 320 - progress_bar_height_margin), (64, 64, 64), -1)
+    cv.circle(screen, (progress_bar_width_margin + progress_bar_cornor_radius,
+                       320 - progress_bar_height_margin - progress_bar_cornor_radius), progress_bar_cornor_radius,
+              (64, 64, 64), -1)
+    cv.circle(screen, (320 - progress_bar_width_margin - progress_bar_cornor_radius,
+                       320 - progress_bar_height_margin - progress_bar_cornor_radius), progress_bar_cornor_radius,
+              (64, 64, 64), -1)
+    cv.rectangle(screen, (
+        progress_bar_width_margin + progress_bar_cornor_radius, 320 - progress_bar_height_margin - progress_bar_height),
+                 (320 - progress_bar_width_margin - progress_bar_cornor_radius, 320 - progress_bar_height_margin),
+                 (64, 64, 64), -1)
     # progress bar
-    cv.circle(screen, (progress_bar_width_margin + progress_bar_cornor_radius, 320 - progress_bar_height_margin - progress_bar_cornor_radius), progress_bar_cornor_radius, (255, 255, 255), -1)
-    cv.rectangle(screen, (progress_bar_width_margin + progress_bar_cornor_radius, 320 - progress_bar_height_margin - progress_bar_height), (int(progress_bar_width_margin + progress_bar_cornor_radius + (320 - progress_bar_width_margin - progress_bar_cornor_radius - progress_bar_width_margin - progress_bar_cornor_radius) * (boot_progress / 100)), 320 - progress_bar_height_margin), (255, 255, 255), -1)
-    cv.circle(screen, (int(progress_bar_width_margin + progress_bar_cornor_radius + (320 - progress_bar_width_margin - progress_bar_cornor_radius - progress_bar_width_margin - progress_bar_cornor_radius) * (boot_progress / 100)), 320 - progress_bar_height_margin - progress_bar_cornor_radius), progress_bar_cornor_radius, (255, 255, 255), -1)
+    cv.circle(screen, (progress_bar_width_margin + progress_bar_cornor_radius,
+                       320 - progress_bar_height_margin - progress_bar_cornor_radius), progress_bar_cornor_radius,
+              (255, 255, 255), -1)
+    cv.rectangle(screen, (
+        progress_bar_width_margin + progress_bar_cornor_radius, 320 - progress_bar_height_margin - progress_bar_height),
+                 (
+                     int(progress_bar_width_margin + progress_bar_cornor_radius + (
+                             320 - progress_bar_width_margin - progress_bar_cornor_radius - progress_bar_width_margin - progress_bar_cornor_radius) * (
+                                 boot_progress / 100)), 320 - progress_bar_height_margin), (255, 255, 255), -1)
+    cv.circle(screen, (int(progress_bar_width_margin + progress_bar_cornor_radius + (
+            320 - progress_bar_width_margin - progress_bar_cornor_radius - progress_bar_width_margin - progress_bar_cornor_radius) * (
+                                   boot_progress / 100)),
+                       320 - progress_bar_height_margin - progress_bar_cornor_radius), progress_bar_cornor_radius,
+              (255, 255, 255), -1)
 
 
 print("defs defined.")
@@ -454,5 +584,8 @@ splash_display_time = key_engine.get_key("ROSSplashScreenTime").get("value")
 while time.time() - started_time < splash_display_time:
     boot_logo(time.time() - started_time)
     tick_screen()
+    # debug
+    if hard_warning_icon is None:
+        kernel_panicked = True
     if cv.waitKey(1) & 0xFF == 27:
         shutdown()
