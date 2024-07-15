@@ -3,6 +3,8 @@ notifications = []
 notifications_management_enabled = True
 notifications_management_thread = None
 sound_engine = None
+tts_engine = None
+tts_enabled = False
 
 try:
     import threading
@@ -54,8 +56,11 @@ class Notification:
 
 def add_notification(icon, notification):
     global notifications
+    global sound_engine
+    global tts_engine
     notifications.append(Notification(icon, notification))
     if sound_engine is not None: sound_engine.play("boot/res/alert.mp3", volume=2.0)
+    if tts_engine is not None and tts_enabled: tts_engine.order_tts(notification)
     return notifications[-1]
 
 

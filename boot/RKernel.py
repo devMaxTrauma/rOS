@@ -76,6 +76,10 @@ try:
     import boot.RNotification as notification_engine
 except ImportError:
     make_error("1108", "RNotification not found.")
+try:
+    import boot.RTTS as tts_engine
+except ImportError:
+    make_error("1109", "RTTS not found.")
 
 print("RKernel imports loaded.")
 
@@ -159,8 +163,8 @@ def get_frame():
     frame_average_green = np.average(frame[:, :, 1])
     frame_average_blue = np.average(frame[:, :, 0])
     frame_average_brightness = (frame_average_red + frame_average_green + frame_average_blue) / 3
-    if frame_average_brightness < 60 and notification_engine.get_notification(message="Low brightness detected.") is None:
-        notification_engine.add_notification("hard_warning.png", "Low brightness detected.")
+    if frame_average_brightness < 60 and notification_engine.get_notification(message="저조도 감지") is None:
+        notification_engine.add_notification("hard_warning.png", "저조도 감지")
 
     # make frame 320x320
     return get_320_320_frame(frame)
@@ -411,7 +415,7 @@ def render_tensor_and_etc():
     # render notifications
     notifications_count = len(notification_engine.notifications)
     try:
-        if notifications_count > 0: new_frame = render_notifications(new_frame, notification_engine.notifications)
+        if key_engine.get_key("Notification Display Overlap").get("value"): new_frame = render_notifications(new_frame, notification_engine.notifications)
     except Exception as e:
         print("Error while rendering notifications.")
         print(e)
@@ -471,6 +475,7 @@ def shutdown():
     else:
         camera.release()
     notification_engine.close()
+    tts_engine.shutdown()
     current_threads = threading.enumerate()
     for thread in current_threads:
         if thread.name == "MainThread": continue
@@ -568,7 +573,8 @@ print("defs defined.")
 print("preparing RKernel...")
 tensor_engine.fps_engine = fps_engine
 tensor_engine.calculate_distance_function = calculate_distance
-notification_engine.sound_engine = sound_engine
+notification_engine.tts_engine = tts_engine
+notification_engine.tts_enabled = key_engine.get_key("Notification TTS Enabled").get("value")
 if "boot.RBluetooth" in sys.modules:
     print("callback set.")
     bluetooth_engine.connected_callback = bluetooth_connected_callback
@@ -591,3 +597,6 @@ while time.time() - started_time < splash_display_time:
         kernel_panicked = True
     if cv.waitKey(1) & 0xFF == 27:
         shutdown()
+
+tts_engine.sound_engine = sound_engine
+notification_engine.sound_engine = sound_engine
