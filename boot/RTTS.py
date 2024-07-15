@@ -42,7 +42,7 @@ def play_tts(text, lang='ko'):
     tts.write_to_fp(fp)
     fp.seek(0)
     if sound_engine is not None:
-        sound_engine.play(fp, volume=2.0)
+        sound_engine.play(fp)
     return fp
 
 
