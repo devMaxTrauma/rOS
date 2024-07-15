@@ -159,7 +159,7 @@ def get_frame():
     frame_average_green = np.average(frame[:, :, 1])
     frame_average_blue = np.average(frame[:, :, 0])
     frame_average_brightness = (frame_average_red + frame_average_green + frame_average_blue) / 3
-    if frame_average_brightness < 100 and notification_engine.get_notification(message="Low brightness detected.") is None:
+    if frame_average_brightness < 60 and notification_engine.get_notification(message="Low brightness detected.") is None:
         notification_engine.add_notification("hard_warning.png", "Low brightness detected.")
 
     # make frame 320x320
@@ -486,6 +486,7 @@ def shutdown():
 def bluetooth_connected_callback():
     sound_engine.play("boot/res/alert.mp3")
     print("Bluetooth connected.")
+    notification_engine.add_notification("warning.png", "Bluetooth connected.")
 
 
 def bluetooth_signal_callback(data):
@@ -567,6 +568,7 @@ print("defs defined.")
 print("preparing RKernel...")
 tensor_engine.fps_engine = fps_engine
 tensor_engine.calculate_distance_function = calculate_distance
+notification_engine.sound_engine = sound_engine
 if "boot.RBluetooth" in sys.modules:
     print("callback set.")
     bluetooth_engine.connected_callback = bluetooth_connected_callback
