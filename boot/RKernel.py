@@ -80,6 +80,18 @@ try:
     import boot.RTTS as tts_engine
 except ImportError:
     make_error("1109", "RTTS not found.")
+try:
+    import boot.RGPIO as gpio_engine
+except ImportError:
+    print("RGPIO not found.")
+try:
+    if "boot.RGPIO" in sys.modules: import boot.RUSS as ultrasonic_engine
+except ImportError:
+    make_error("1111", "RUSS not found.")
+try:
+    if "boot.RGPIO" in sys.modules: import boot.RTaptic as taptic_engine
+except ImportError:
+    make_error("1112", "RTaptic not found.")
 
 print("RKernel imports loaded.")
 
@@ -476,6 +488,12 @@ def shutdown():
         camera.release()
     notification_engine.close()
     tts_engine.shutdown()
+    if "boot.RTaptic" in sys.modules:
+        taptic_engine.shutdown()
+    if "boot.RUSS" in sys.modules:
+        ultrasonic_engine.shutdown()
+    if "boot.RGPIO" in sys.modules:
+        gpio_engine.shutdown()
     current_threads = threading.enumerate()
     for thread in current_threads:
         if thread.name == "MainThread": continue
@@ -513,7 +531,7 @@ def bluetooth_signal_callback(data):
         pass
 
 
-def boot_logo(started_ticks: float):
+def boot_logo(started_ticks: float, target_ticks: float = 8.0):
     global screen
     screen = black_screen
     global splash_screen
@@ -522,14 +540,19 @@ def boot_logo(started_ticks: float):
 
     # cv.putText(screen, "ROS", (10, 20), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
     boot_progress = 0
-    if started_ticks < 3:
-        boot_progress = started_ticks * 10.0
+    if started_ticks < target_ticks*0.35:
+        # boot_progress = started_ticks * 10.0
+        boot_progress = started_ticks/(target_ticks*0.35) * 30.0
         pass
-    elif started_ticks < 5:
-        boot_progress = 30 + (started_ticks - 3) * 30.0
+    elif started_ticks < target_ticks*0.6:
+        # boot_progress = 30 + (started_ticks - 3) * 30.0
+        #rage is 30 to 90
+        boot_progress = 30 + (started_ticks - target_ticks*0.35) / (target_ticks*0.25) * 60.0
         pass
-    elif started_ticks < 6.5:
-        boot_progress = 90 + 10 / 1.5 * (started_ticks - 5)
+    elif started_ticks < target_ticks*0.9:
+        # boot_progress = 90 + 10 / 1.5 * (started_ticks - 5)
+        #range is 90 to 100
+        boot_progress = 90 + (started_ticks - target_ticks*0.6) / (target_ticks*0.3) * 10.0
         pass
     else:
         boot_progress = 100
@@ -581,6 +604,16 @@ if "boot.RBluetooth" in sys.modules:
     bluetooth_engine.recv_callback = bluetooth_signal_callback
 camera = get_camera()
 sound_engine.overall_volume = key_engine.get_key("SoundVolume").get("value")
+if "boot.RGPIO" in sys.modules:
+    if "boot.RTapic" in sys.modules: taptic_engine.gpio_engine = gpio_engine
+    if "boot.RUSS" in sys.modules: ultrasonic_engine.gpio_engine = gpio_engine
+
+if "boot.RTapic" in sys.modules:
+    taptic_engine.init()
+
+if "boot.RUSS" in sys.modules:
+    ultrasonic_engine.init()
+
 print("RKernel prepared.")
 
 # set_tensor_input()
@@ -590,7 +623,7 @@ if key_engine.get_key("ROSBootChimeEnabled").get("value"):
 started_time = time.time()
 splash_display_time = key_engine.get_key("ROSSplashScreenTime").get("value")
 while time.time() - started_time < splash_display_time:
-    boot_logo(time.time() - started_time)
+    boot_logo(time.time() - started_time, splash_display_time)
     tick_screen()
     # debug
     if hard_warning_icon is None:
