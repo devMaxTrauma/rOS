@@ -33,7 +33,7 @@ class PWM:
         self.period = 1 / freq
         self.t_on = self.period * duty_rate
         self.t_off = self.period - self.t_on
-        self.pwm_thread = threading.Thread(target=self.pwm_routine)
+        self.pwm_thread = threading.Thread(target=self.pwm_routine).start()
 
     def pwm_routine(self):
         while self.pwm_run: self.pwm_tick()
