@@ -80,18 +80,30 @@ try:
     import boot.RTTS as tts_engine
 except ImportError:
     make_error("1109", "RTTS not found.")
+# try:
+#     import boot.RGPIO as gpio_engine
+# except ImportError:
+#     print("RGPIO not found.")
+# try:
+#     if "boot.RGPIO" in sys.modules: import boot.RUSS as ultrasonic_engine
+# except ImportError:
+#     make_error("1111", "RUSS not found.")
+# try:
+#     if "boot.RGPIO" in sys.modules: import boot.RTaptic as taptic_engine
+# except ImportError:
+#     make_error("1112", "RTaptic not found.")
 try:
-    import boot.RGPIO as gpio_engine
+    import boot.RGPIOD as gpio_engine
 except ImportError:
-    print("RGPIO not found.")
+    print("RGPIOD not found.")
 try:
-    if "boot.RGPIO" in sys.modules: import boot.RUSS as ultrasonic_engine
+    if "boot.RGPIOD" in sys.modules: import boot.RUSSD as ultrasonic_engine
 except ImportError:
-    make_error("1111", "RUSS not found.")
+    make_error("1111", "RUSSD not found.")
 try:
-    if "boot.RGPIO" in sys.modules: import boot.RTaptic as taptic_engine
+    if "boot.RGPIOD" in sys.modules: import boot.RTapticD as taptic_engine
 except ImportError:
-    make_error("1112", "RTaptic not found.")
+    make_error("1112", "RTapticD not found.")
 
 print("RKernel imports loaded.")
 
@@ -562,32 +574,32 @@ def boot_logo(started_ticks: float, target_ticks: float = 8.0):
     progress_bar_height_margin = 10
     progress_bar_height = 5
     progress_bar_width = 320 - progress_bar_width_margin * 2
-    progress_bar_cornor_radius = progress_bar_height // 2
+    progress_bar_corner_radius = progress_bar_height // 2
     # progress bar background
-    cv.circle(screen, (progress_bar_width_margin + progress_bar_cornor_radius,
-                       320 - progress_bar_height_margin - progress_bar_cornor_radius), progress_bar_cornor_radius,
+    cv.circle(screen, (progress_bar_width_margin + progress_bar_corner_radius,
+                       320 - progress_bar_height_margin - progress_bar_corner_radius), progress_bar_corner_radius,
               (64, 64, 64), -1)
-    cv.circle(screen, (320 - progress_bar_width_margin - progress_bar_cornor_radius,
-                       320 - progress_bar_height_margin - progress_bar_cornor_radius), progress_bar_cornor_radius,
+    cv.circle(screen, (320 - progress_bar_width_margin - progress_bar_corner_radius,
+                       320 - progress_bar_height_margin - progress_bar_corner_radius), progress_bar_corner_radius,
               (64, 64, 64), -1)
     cv.rectangle(screen, (
-        progress_bar_width_margin + progress_bar_cornor_radius, 320 - progress_bar_height_margin - progress_bar_height),
-                 (320 - progress_bar_width_margin - progress_bar_cornor_radius, 320 - progress_bar_height_margin),
+        progress_bar_width_margin + progress_bar_corner_radius, 320 - progress_bar_height_margin - progress_bar_height),
+                 (320 - progress_bar_width_margin - progress_bar_corner_radius, 320 - progress_bar_height_margin),
                  (64, 64, 64), -1)
     # progress bar
-    cv.circle(screen, (progress_bar_width_margin + progress_bar_cornor_radius,
-                       320 - progress_bar_height_margin - progress_bar_cornor_radius), progress_bar_cornor_radius,
+    cv.circle(screen, (progress_bar_width_margin + progress_bar_corner_radius,
+                       320 - progress_bar_height_margin - progress_bar_corner_radius), progress_bar_corner_radius,
               (255, 255, 255), -1)
     cv.rectangle(screen, (
-        progress_bar_width_margin + progress_bar_cornor_radius, 320 - progress_bar_height_margin - progress_bar_height),
+        progress_bar_width_margin + progress_bar_corner_radius, 320 - progress_bar_height_margin - progress_bar_height),
                  (
-                     int(progress_bar_width_margin + progress_bar_cornor_radius + (
-                             320 - progress_bar_width_margin - progress_bar_cornor_radius - progress_bar_width_margin - progress_bar_cornor_radius) * (
+                     int(progress_bar_width_margin + progress_bar_corner_radius + (
+                             320 - progress_bar_width_margin - progress_bar_corner_radius - progress_bar_width_margin - progress_bar_corner_radius) * (
                                  boot_progress / 100)), 320 - progress_bar_height_margin), (255, 255, 255), -1)
-    cv.circle(screen, (int(progress_bar_width_margin + progress_bar_cornor_radius + (
-            320 - progress_bar_width_margin - progress_bar_cornor_radius - progress_bar_width_margin - progress_bar_cornor_radius) * (
+    cv.circle(screen, (int(progress_bar_width_margin + progress_bar_corner_radius + (
+            320 - progress_bar_width_margin - progress_bar_corner_radius - progress_bar_width_margin - progress_bar_corner_radius) * (
                                    boot_progress / 100)),
-                       320 - progress_bar_height_margin - progress_bar_cornor_radius), progress_bar_cornor_radius,
+                       320 - progress_bar_height_margin - progress_bar_corner_radius), progress_bar_corner_radius,
               (255, 255, 255), -1)
 
 
@@ -605,10 +617,10 @@ if "boot.RBluetooth" in sys.modules:
 camera = get_camera()
 sound_engine.overall_volume = key_engine.get_key("SoundVolume").get("value")
 if "boot.RGPIO" in sys.modules:
-    if "boot.RTapic" in sys.modules: taptic_engine.gpio_engine = gpio_engine
+    if "boot.RTaptic" in sys.modules: taptic_engine.gpio_engine = gpio_engine
     if "boot.RUSS" in sys.modules: ultrasonic_engine.gpio_engine = gpio_engine
 
-if "boot.RTapic" in sys.modules:
+if "boot.RTaptic" in sys.modules:
     taptic_engine.init()
 
 if "boot.RUSS" in sys.modules:

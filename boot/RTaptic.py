@@ -30,8 +30,8 @@ def init():
     if gpio_engine is None:
         print("very fucked: there is no gpio_engine lol")
         raise OSError
-    left_taptic_p_pwm = gpio_engine.set_pwm(left_taptic_p_pin, 100, "left_p_pwm")
-    left_taptic_n_pwm = gpio_engine.set_pwm(left_taptic_n_pin, 100, "left_n_pwm")
-    right_taptic_p_pwm = gpio_engine.set_pwm(right_taptic_p_pin, 100, "right_p_pwm")
-    right_taptic_n_pwm = gpio_engine.set_pwm(right_taptic_n_pin, 100, "right_n_pwm")
+    # left_taptic_p_pwm = gpio_engine.set_pwm(left_taptic_p_pin, 100, "left_p_pwm")
+    # left_taptic_n_pwm = gpio_engine.set_pwm(left_taptic_n_pin, 100, "left_n_pwm")
+    # right_taptic_p_pwm = gpio_engine.set_pwm(right_taptic_p_pin, 100, "right_p_pwm")
+    # right_taptic_n_pwm = gpio_engine.set_pwm(right_taptic_n_pin, 100, "right_n_pwm")
     pass

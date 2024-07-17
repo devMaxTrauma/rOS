@@ -56,3 +56,5 @@ def shutdown():
     for pwm in pwms:
         pwm.stop()
     GPIO.cleanup()
+
+# warning: abandoned
