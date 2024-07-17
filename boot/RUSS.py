@@ -44,7 +44,9 @@ def init():
 
 def ultra_sonic_sensor_routine():
     global output_distance
+    time.sleep(2)
     while ultra_sonic_sensor_read_enabled:
+        if gpio_engine is None: continue
         pulse_start = time.time()
         pulse_end = time.time()
         gpio_engine.output_write(trigger_line, True)
