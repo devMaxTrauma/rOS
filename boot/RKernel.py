@@ -616,7 +616,7 @@ if "boot.RBluetooth" in sys.modules:
     bluetooth_engine.recv_callback = bluetooth_signal_callback
 camera = get_camera()
 sound_engine.overall_volume = key_engine.get_key("SoundVolume").get("value")
-if "boot.RGPIO" in sys.modules:
+if "boot.RGPIOD" in sys.modules:
     if "boot.RTaptic" in sys.modules: taptic_engine.gpio_engine = gpio_engine
     if "boot.RUSS" in sys.modules: ultrasonic_engine.gpio_engine = gpio_engine
 
