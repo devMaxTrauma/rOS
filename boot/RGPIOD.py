@@ -4,28 +4,21 @@ except ImportError:
     raise ImportError("gpiod not found. Please install it using 'pip install gpiod'.")
 
 
-chip = gpiod.Chip("gpiochip0")
+chip = gpiod.Chip("gpiochip4")
 
 lines = []
 
 
 def set_output(pin, name, original_state=False):
     line = chip.get_line(pin)
-    config = gpiod.line_request()
-    config.consumer = name
-    config.request_type = gpiod.line_request.DIRECTION_OUTPUT
-    line.request(config)
-    line.set_value(original_state)
+    line.request(consumer=name, type=gpiod.LINE_REQ_DIR_OUT, default_vals=[original_state])
     lines.append(line)
     return line
 
 
 def set_input(pin, name):
     line = chip.get_line(pin)
-    config = gpiod.line_request()
-    config.consumer = name
-    config.request_type = gpiod.line_request.DIRECTION_INPUT
-    line.request(config)
+    line.request(consumer=name, type=gpiod.LINE_REQ_DIR_IN)
     lines.append(line)
     return line
 
