@@ -97,13 +97,13 @@ try:
 except ImportError:
     print("RGPIOD not found.")
 try:
-    if "boot.RGPIOD" in sys.modules: import boot.RUSSD as ultrasonic_engine
+    if "boot.RGPIOD" in sys.modules: import boot.RUSS as ultrasonic_engine
 except ImportError:
-    make_error("1111", "RUSSD not found.")
+    make_error("1111", "RUSS not found.")
 try:
-    if "boot.RGPIOD" in sys.modules: import boot.RTapticD as taptic_engine
+    if "boot.RGPIOD" in sys.modules: import boot.RTaptic as taptic_engine
 except ImportError:
-    make_error("1112", "RTapticD not found.")
+    make_error("1112", "RTaptic not found.")
 
 print("RKernel imports loaded.")
 
