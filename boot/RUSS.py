@@ -42,26 +42,37 @@ def init():
     pass
 
 
+def ultra_sonic_sensor_tick():
+    if gpio_engine is None:
+        return
+    pulse_start = time.time()
+    pulse_end = time.time()
+    timed_out = False
+    gpio_engine.output_write(trigger_line, True)
+    time.sleep(0.00001)
+    gpio_engine.output_write(trigger_line, False)
+    start_time = time.time()
+    while not gpio_engine.input_read(echo_line) and pulse_start - start_time <= ultra_sonic_time_out:
+        pulse_start = time.time()
+    if pulse_start - start_time > ultra_sonic_time_out:
+        timed_out = True
+    while gpio_engine.input_read(echo_line) and pulse_end - start_time <= ultra_sonic_time_out:
+        pulse_end = time.time()
+    if pulse_end - start_time > ultra_sonic_time_out:
+        timed_out = True
+
+    if timed_out:
+        return -1
+    pulse_duration = pulse_end - pulse_start
+    return pulse_duration * 171.5
+
+
 def ultra_sonic_sensor_routine():
     global output_distance
     time.sleep(2)
     while ultra_sonic_sensor_read_enabled:
-        if gpio_engine is None: continue
-        pulse_start = time.time()
-        pulse_end = time.time()
-        gpio_engine.output_write(trigger_line, True)
-        time.sleep(0.00001)
-        gpio_engine.output_write(trigger_line, False)
-        start_time = time.time()
-        while not gpio_engine.input_read(
-                echo_line) and pulse_start - start_time <= ultra_sonic_time_out: pulse_start = time.time()
-        while gpio_engine.input_read(
-                echo_line) and pulse_end - start_time <= ultra_sonic_time_out: pulse_end = time.time()
-        pulse_duration = pulse_end - pulse_start
-        output_distance = pulse_duration * 171.5
-        print("debug USS: " + str(output_distance) + "m")
+        output_distance = ultra_sonic_sensor_tick()
         time.sleep(0.1)
-        pass
     pass
 
 
