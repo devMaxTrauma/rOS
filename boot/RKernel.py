@@ -187,8 +187,8 @@ def get_frame():
     frame_average_green = np.average(frame[:, :, 1])
     frame_average_blue = np.average(frame[:, :, 0])
     frame_average_brightness = (frame_average_red + frame_average_green + frame_average_blue) / 3
-    if frame_average_brightness < 60 and notification_engine.get_notification(message="저조도 감지") is None:
-        notification_engine.add_notification("hard_warning.png", "저조도 감지")
+    if frame_average_brightness < 60 and notification_engine.get_notification(message="low brightness detected") is None:
+        notification_engine.add_notification("hard_warning.png", "low brightness detected", "저조도 감지. 사용자의 즉각적인 주의가 필요합니다.")
 
     # make frame 320x320
     return get_320_320_frame(frame)
@@ -371,13 +371,14 @@ def render_notifications(frame, notifications):
         cv.circle(frame, (this_notification_start_x + this_notification_width - this_notification_radius,
                           notification_start_y + this_notification_radius + printed_y_pixel),
                   this_notification_radius, (255, 255, 255), -1)
-        cv.rectangle(frame, (this_notification_start_x + this_notification_radius, notification_start_y + printed_y_pixel),
+        cv.rectangle(frame,
+                     (this_notification_start_x + this_notification_radius, notification_start_y + printed_y_pixel),
                      (this_notification_start_x + this_notification_width - this_notification_radius,
                       notification_start_y + printed_y_pixel + this_notification_height), (255, 255, 255), -1)
         printed_y_pixel += this_notification_height
 
     printed_y_pixel = 0
-    for i in range(len(notifications)-1):
+    for i in range(len(notifications) - 1):
         upper_notification_height = int(one_notification_max_height * notifications[i].display_visibility)
         lower_notification_height = int(one_notification_max_height * notifications[i + 1].display_visibility)
         upper_notification_radius = int(upper_notification_height // 2)
@@ -390,13 +391,22 @@ def render_notifications(frame, notifications):
         this_notification_start_x = max(upper_notification_start_x, lower_notification_start_x)
 
         max_circle_radius = max(upper_notification_radius, lower_notification_radius)
-        cv.rectangle(frame, (this_notification_start_x, notification_start_y + printed_y_pixel + upper_notification_radius),
-                     (this_notification_start_x + max_circle_radius, notification_start_y + printed_y_pixel + upper_notification_height + lower_notification_radius), (255, 255, 255), -1)
-        cv.rectangle(frame, (this_notification_start_x + this_notification_width - max_circle_radius, notification_start_y + printed_y_pixel + upper_notification_radius),
-                        (this_notification_start_x + this_notification_width, notification_start_y + printed_y_pixel + upper_notification_height + lower_notification_radius), (255, 255, 255), -1)
+        cv.rectangle(frame,
+                     (this_notification_start_x, notification_start_y + printed_y_pixel + upper_notification_radius),
+                     (this_notification_start_x + max_circle_radius,
+                      notification_start_y + printed_y_pixel + upper_notification_height + lower_notification_radius),
+                     (255, 255, 255), -1)
+        cv.rectangle(frame, (this_notification_start_x + this_notification_width - max_circle_radius,
+                             notification_start_y + printed_y_pixel + upper_notification_radius),
+                     (this_notification_start_x + this_notification_width,
+                      notification_start_y + printed_y_pixel + upper_notification_height + lower_notification_radius),
+                     (255, 255, 255), -1)
         divide_bar_height = 2
-        cv.rectangle(frame, (this_notification_start_x, notification_start_y + printed_y_pixel + upper_notification_height- divide_bar_height//2),
-                     (this_notification_start_x + this_notification_width, notification_start_y + printed_y_pixel + upper_notification_height + divide_bar_height//2), (200, 200, 200), -1)
+        cv.rectangle(frame, (this_notification_start_x,
+                             notification_start_y + printed_y_pixel + upper_notification_height - divide_bar_height // 2),
+                     (this_notification_start_x + this_notification_width,
+                      notification_start_y + printed_y_pixel + upper_notification_height + divide_bar_height // 2),
+                     (200, 200, 200), -1)
         printed_y_pixel += upper_notification_height
 
     printed_y_pixel = 0
@@ -406,23 +416,28 @@ def render_notifications(frame, notifications):
         printed_y_pixel += printed_y_pixel_after
         this_notification_height = int(one_notification_max_height * notifications[i].display_visibility)
         printed_y_pixel_after = this_notification_height
-        if this_notification_height <=10: continue
+        if this_notification_height <= 10: continue
         this_notification_width = int(one_notification_width * notifications[i].display_visibility)
         this_notification_start_x = (320 - this_notification_width) // 2
         this_notification_radius = int(this_notification_height // 2)
         this_notification_image_size = this_notification_height - 10
         if this_notification_image_size <= 0: continue
         icon = cv.resize(black_screen, (this_notification_image_size, this_notification_image_size))
-        if notifications[i].icon == "hard_warning.png": icon = cv.resize(hard_warning_icon, (this_notification_image_size, this_notification_image_size))
-        elif notifications[i].icon == "warning.png": icon = cv.resize(warning_icon, (this_notification_image_size, this_notification_image_size))
-        frame[notification_start_y + 5 + printed_y_pixel:notification_start_y + 5 + printed_y_pixel + this_notification_image_size,
-                this_notification_start_x + 5:this_notification_start_x + 5 + this_notification_image_size] = icon
+        if notifications[i].icon == "hard_warning.png":
+            icon = cv.resize(hard_warning_icon, (this_notification_image_size, this_notification_image_size))
+        elif notifications[i].icon == "warning.png":
+            icon = cv.resize(warning_icon, (this_notification_image_size, this_notification_image_size))
+        frame[
+        notification_start_y + 5 + printed_y_pixel:notification_start_y + 5 + printed_y_pixel + this_notification_image_size,
+        this_notification_start_x + 5:this_notification_start_x + 5 + this_notification_image_size] = icon
         string_able_pixel_width = this_notification_width - this_notification_image_size - 10
         string_able_pixel_height = this_notification_height - 10
         string_max_length = string_able_pixel_width // 10
         string = notifications[i].message
         if len(string) > string_max_length: string = string[:string_max_length] + "..."
-        cv.putText(frame, string, (this_notification_start_x + this_notification_image_size + 10, notification_start_y + 5 + printed_y_pixel + this_notification_height // 2 + 5), cv.FONT_HERSHEY_SIMPLEX, 0.5,
+        cv.putText(frame, string, (this_notification_start_x + this_notification_image_size + 10,
+                                   notification_start_y + 5 + printed_y_pixel + this_notification_height // 2 + 5),
+                   cv.FONT_HERSHEY_SIMPLEX, 0.5,
                    (64, 64, 64), 1, cv.LINE_AA)
 
     return frame
@@ -439,7 +454,8 @@ def render_tensor_and_etc():
     # render notifications
     notifications_count = len(notification_engine.notifications)
     try:
-        if key_engine.get_key("Notification Display Overlap").get("value"): new_frame = render_notifications(new_frame, notification_engine.notifications)
+        if key_engine.get_key("Notification Display Overlap").get("value"): new_frame = render_notifications(new_frame,
+                                                                                                             notification_engine.notifications)
     except Exception as e:
         print("Error while rendering notifications.")
         print(e)
@@ -468,10 +484,12 @@ def tick_screen():
         cv.imshow("ROS", screen)
 
     fps_engine.add_candidate_main_fps()
-    if fps_engine.get_main_screen_fps() < 20 and notification_engine.get_notification(message="Low FPS detected.") is None:
-        notification_engine.add_notification("warning.png", "Low FPS detected.")
-    if fps_engine.get_tensor_fps() < 15 and notification_engine.get_notification(message="Low Tensor FPS detected.") is None:
-        notification_engine.add_notification("warning.png", "Low Tensor FPS detected.")
+    if fps_engine.get_main_screen_fps() < 20 and notification_engine.get_notification(
+            message="Low System FPS detected.") is None:
+        notification_engine.add_notification("warning.png", "Low System FPS detected.", "시스템 FPS가 낮습니다. 늦은 반응에 대비 해주세요.")
+    if fps_engine.get_tensor_fps() < 15 and notification_engine.get_notification(
+            message="Low Tensor FPS detected.") is None:
+        notification_engine.add_notification("warning.png", "Low Tensor FPS detected.", "텐서 FPS가 낮습니다. 늦은 반응에 대비 해주세요.")
 
 
 def set_tensor_input():
@@ -485,7 +503,7 @@ def set_tensor_input():
 def shutdown():
     print("Shutting down...")
     global camera
-    notification_engine.add_notification("hard_warning.png", "Shutting down...")
+    notification_engine.add_notification("hard_warning.png", "Shutting down...", "종료 중...")
     # shutdown thread later
     tensor_engine.stop_process_frame()
     label_engine.erase_memory()
@@ -506,6 +524,7 @@ def shutdown():
         ultrasonic_engine.shutdown()
     if "boot.RGPIO" in sys.modules:
         gpio_engine.shutdown()
+    # time.sleep(2)
     current_threads = threading.enumerate()
     for thread in current_threads:
         if thread.name == "MainThread": continue
@@ -521,7 +540,7 @@ def shutdown():
 def bluetooth_connected_callback():
     sound_engine.play("boot/res/alert.mp3")
     print("Bluetooth connected.")
-    notification_engine.add_notification("warning.png", "Bluetooth connected.")
+    notification_engine.add_notification("warning.png", "Bluetooth connected.", "블루투스 연결되었습니다.")
 
 
 def bluetooth_signal_callback(data):
@@ -531,10 +550,10 @@ def bluetooth_signal_callback(data):
     if data == b"a":
         sound_engine.stop(find_my_sounding_one_channel)
         find_my_sounding_one_channel = sound_engine.play("boot/res/FindMy.mp3")
-        notification_engine.add_notification("warning.png", "Find My is activated.")
+        notification_engine.add_notification("warning.png", "Find My is activated.", "나의 찾기가 활성화 되었습니다.")
     elif data == b"b":
-        find_my_keep_sounding_channel = sound_engine.play("boot/res/FindMy.mp3", -1)
-        find_my_notification = notification_engine.add_notification("warning.png", "Find My is activated.")
+        find_my_keep_sounding_channel = sound_engine.play("boot/res/FindMy_long.mp3", -1)
+        find_my_notification = notification_engine.add_notification("warning.png", "Find My is activated.", "나의 찾기가 활성화 되었습니다.")
         find_my_notification.display_duration = 1000000
         pass
     elif data == b"c":
@@ -552,19 +571,19 @@ def boot_logo(started_ticks: float, target_ticks: float = 8.0):
 
     # cv.putText(screen, "ROS", (10, 20), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
     boot_progress = 0
-    if started_ticks < target_ticks*0.35:
+    if started_ticks < target_ticks * 0.35:
         # boot_progress = started_ticks * 10.0
-        boot_progress = started_ticks/(target_ticks*0.35) * 30.0
+        boot_progress = started_ticks / (target_ticks * 0.35) * 30.0
         pass
-    elif started_ticks < target_ticks*0.6:
+    elif started_ticks < target_ticks * 0.6:
         # boot_progress = 30 + (started_ticks - 3) * 30.0
-        #rage is 30 to 90
-        boot_progress = 30 + (started_ticks - target_ticks*0.35) / (target_ticks*0.25) * 60.0
+        # rage is 30 to 90
+        boot_progress = 30 + (started_ticks - target_ticks * 0.35) / (target_ticks * 0.25) * 60.0
         pass
-    elif started_ticks < target_ticks*0.9:
+    elif started_ticks < target_ticks * 0.9:
         # boot_progress = 90 + 10 / 1.5 * (started_ticks - 5)
-        #range is 90 to 100
-        boot_progress = 90 + (started_ticks - target_ticks*0.6) / (target_ticks*0.3) * 10.0
+        # range is 90 to 100
+        boot_progress = 90 + (started_ticks - target_ticks * 0.6) / (target_ticks * 0.3) * 10.0
         pass
     else:
         boot_progress = 100

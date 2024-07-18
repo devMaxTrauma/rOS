@@ -54,13 +54,13 @@ class Notification:
         time.sleep(0.005)
 
 
-def add_notification(icon, notification):
+def add_notification(icon, notification, saying):
     global notifications
     global sound_engine
     global tts_engine
     notifications.append(Notification(icon, notification))
     if sound_engine is not None: sound_engine.play("boot/res/alert.mp3", volume=2.0)
-    if tts_engine is not None and tts_enabled: tts_engine.order_tts(notification)
+    if tts_engine is not None and tts_enabled: tts_engine.order_tts(saying)
     return notifications[-1]
 
 
@@ -96,6 +96,8 @@ def notifications_management_routine():
 
 
 def close():
+    global notifications
+    for notification in notifications: notification.notification_finished = True
     global notifications_management_enabled
     notifications_management_enabled = False
     global notifications_management_thread

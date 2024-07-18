@@ -28,5 +28,5 @@
 <name> ROSObjectDistanceCalculateConstantMacBookPro </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantMacBookProNoticeROS object distance calculate constant for MacBook Pro </>
 <name> ROSObjectDistanceCalculateConstantIphone </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantIphoneNoticeROS object distance calculate constant for iPhone </>
 <name> SoundVolume </> <type> float </> <value> 0.3 </> <comment> SoundVolumeNoticeSound volume </>
-<name> Notification Display Overlap </> <type> bool </> <value> False </> <comment> Notification Display OverlapNoticeNotification display overlap </>
+<name> Notification Display Overlap </> <type> bool </> <value> True </> <comment> Notification Display OverlapNoticeNotification display overlap </>
 <name> Notification TTS Enabled </> <type> bool </> <value> True </> <comment> Notification TTS EnabledNoticeNotification TTS is enabled or not </>

@@ -50,10 +50,10 @@ def init():
     pwm_right_n = gpio_engine.create_pwm(line_right_n, 100, "taptic_right_n")
 
     # debug
-    pwm_left_p.change_duty_rate(0.5)
-    pwm_left_n.change_duty_rate(0.2)
-    pwm_right_p.change_duty_rate(0.8)
-    pwm_right_n.change_duty_rate(0.5)
-    pwm_right_n.change_freq(1)
+    # pwm_left_p.change_duty_rate(0.5)
+    # pwm_left_n.change_duty_rate(0.2)
+    # pwm_right_p.change_duty_rate(0.8)
+    # pwm_right_n.change_duty_rate(0.5)
+    # pwm_right_n.change_freq(1)
 
     pass
