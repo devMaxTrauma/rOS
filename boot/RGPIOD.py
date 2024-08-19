@@ -47,12 +47,12 @@ class PWM:
     def pwm_stop(self):
         self.pwm_run = False
 
-    def change_duty_rate(self, duty_rate):
+    def change_duty_rate(self, duty_rate):  # 0.0 to 1.0
         self.duty_rate = duty_rate
         self.t_on = self.period * duty_rate
         self.t_off = self.period - self.t_on
 
-    def change_freq(self, freq):
+    def change_freq(self, freq):  # Hz
         self.freq = freq
         self.period = 1 / freq
         self.t_on = self.period * self.duty_rate

@@ -657,8 +657,8 @@ while time.time() - started_time < splash_display_time:
     boot_logo(time.time() - started_time, splash_display_time)
     tick_screen()
     # debug
-    if hard_warning_icon is None:
-        kernel_panicked = True
+    # if hard_warning_icon is None:
+    #     kernel_panicked = True
     if cv.waitKey(1) & 0xFF == 27:
         shutdown()
 

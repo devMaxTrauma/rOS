@@ -14,7 +14,7 @@ echo_line = None
 trigger_pin = 21
 trigger_line = None
 output_distance = -1.0
-ultra_sonic_sensor_thread = None
+# ultra_sonic_sensor_thread = None
 ultra_sonic_sensor_read_enabled = True
 ultra_sonic_time_out = 0.04
 
