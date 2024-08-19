@@ -63,6 +63,7 @@ class Taptic:
 
         self.manage_engaged = True
         self.manage_thread = threading.Thread(target=self.manage)
+        self.manage_thread.start()
         pass
 
     def manage(self):

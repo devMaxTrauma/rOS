@@ -10,7 +10,7 @@ print("ROS booted up.")
 
 import time
 
-debug_start_time = time.time()
+# debug_start_time = time.time()
 
 while True:
     frame = kernel.get_frame()
@@ -21,9 +21,9 @@ while True:
     if kernel.cv.waitKey(1) & 0xFF == 27:
         break
 
-    if time.time() - debug_start_time > 3:
-        kernel.notification_engine.add_notification("hard_warning.png", "3 seconds passed.", ".")
-        # kernel.notification_engine.add_notification("warning.png", "3 seconds passed1.")
-        debug_start_time = time.time()
+    # if time.time() - debug_start_time > 3:
+    #     kernel.notification_engine.add_notification("hard_warning.png", "3 seconds passed.", ".")
+    #     # kernel.notification_engine.add_notification("warning.png", "3 seconds passed1.")
+    #     debug_start_time = time.time()
 
 kernel.shutdown()
