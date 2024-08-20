@@ -355,10 +355,15 @@ def make_ar_frame(frame):
         left_eye_screen = left_eye_screen[:, 0:left_eye_screen_width]
         right_eye_screen = right_eye_screen[:, 320 - right_eye_screen_width:]
 
-        ar_screen[eye_start_y:eye_start_y + 320,
+        eye_screen_height = 320
+        if eye_start_y < 0:
+            eye_screen_height += eye_start_y
+            eye_start_y = 0
+
+        ar_screen[eye_start_y:eye_start_y + eye_screen_height,
         left_eye_start_x:left_eye_start_x + left_eye_screen_width] = left_eye_screen
-        ar_screen[eye_start_y:eye_start_y + 320,
-        right_eye_start_x + 320 - right_eye_screen_width:right_eye_start_x + 320] = right_eye_screen
+        ar_screen[eye_start_y:eye_start_y + eye_screen_height,
+        right_eye_start_x + eye_screen_height - right_eye_screen_width:right_eye_start_x + eye_screen_height] = right_eye_screen
 
     elif key_engine.get_key("ARMode").get("value") == "one eye" and preferred_eye == "left":
         # ar_screen[eye_start_y:eye_start_y + 320, left_eye_start_x:left_eye_start_x + 320] = frame
