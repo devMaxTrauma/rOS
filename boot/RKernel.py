@@ -335,70 +335,112 @@ def make_ar_frame(frame):
 
     preferred_eye = key_engine.get_key("ARPreferredEye").get("value")
 
-    if key_engine.get_key("ARMode").get("value") == "both eye":
-        # new version
+    if key_engine.get_key("ARMode").get("value") == "both eye" or key_engine.get_key("ARPreferredEye").get(
+            "value") == "left":
         left_eye_screen = frame
+    else:
+        left_eye_screen = black_screen
+
+    if key_engine.get_key("ARMode").get("value") == "both eye" or key_engine.get_key("ARPreferredEye").get(
+            "value") == "right":
         right_eye_screen = frame
+    else:
+        right_eye_screen = black_screen
 
-        center_cross_bar_width = 0.005  # meter
-        center_cross_bar_width_pixel = int(center_cross_bar_width * ar_ppi * 39.3701)
+    center_cross_bar_width = 0.005  # meter
+    center_cross_bar_width_pixel = int(center_cross_bar_width * ar_ppi * 39.3701)
 
-        left_eye_max_x = (ar_width - center_cross_bar_width_pixel) // 2
-        right_eye_min_x = (ar_width + center_cross_bar_width_pixel) // 2
+    left_eye_max_x = (ar_width - center_cross_bar_width_pixel) // 2
+    right_eye_min_x = (ar_width + center_cross_bar_width_pixel) // 2
 
-        left_eye_screen_width = left_eye_max_x - left_eye_start_x
-        right_eye_screen_width = right_eye_start_x + 320 - right_eye_min_x
+    left_eye_screen_width = left_eye_max_x - left_eye_start_x
+    right_eye_screen_width = right_eye_start_x + 320 - right_eye_min_x
 
-        if left_eye_screen_width > 320: left_eye_screen_width = 320
-        if right_eye_screen_width > 320: right_eye_screen_width = 320
+    if left_eye_screen_width > 320: left_eye_screen_width = 320
+    if right_eye_screen_width > 320: right_eye_screen_width = 320
 
-        left_eye_screen = left_eye_screen[:, 0:left_eye_screen_width]
-        right_eye_screen = right_eye_screen[:, 320 - right_eye_screen_width:]
+    left_eye_screen = left_eye_screen[:, 0:left_eye_screen_width]
+    right_eye_screen = right_eye_screen[:, 320 - right_eye_screen_width:]
 
-        eye_screen_height = 320
-        eye_offset_overlap = 0
-        if eye_start_y < 0:
-            eye_screen_height += eye_start_y
-            eye_offset_overlap = -eye_start_y
-            eye_start_y = 0
+    eye_screen_height = 320
+    eye_offset_overlap = 0
+    if eye_start_y < 0:
+        eye_screen_height += eye_start_y
+        eye_offset_overlap = -eye_start_y
+        eye_start_y = 0
 
-        left_eye_screen = left_eye_screen[eye_offset_overlap:320, :]
-        right_eye_screen = right_eye_screen[eye_offset_overlap:320, :]
+    left_eye_screen = left_eye_screen[eye_offset_overlap:320, :]
+    right_eye_screen = right_eye_screen[eye_offset_overlap:320, :]
 
-        ar_screen[eye_start_y:eye_start_y + eye_screen_height,
-        left_eye_start_x:left_eye_start_x + left_eye_screen_width] = left_eye_screen
-        ar_screen[eye_start_y:eye_start_y + eye_screen_height,
-        right_eye_start_x + eye_screen_height - right_eye_screen_width:right_eye_start_x + eye_screen_height] = right_eye_screen
+    ar_screen[eye_start_y:eye_start_y + eye_screen_height,
+    left_eye_start_x:left_eye_start_x + left_eye_screen_width] = left_eye_screen
+    ar_screen[eye_start_y:eye_start_y + eye_screen_height,
+    right_eye_start_x + eye_screen_height - right_eye_screen_width:right_eye_start_x + eye_screen_height] = right_eye_screen
 
-    elif key_engine.get_key("ARMode").get("value") == "one eye" and preferred_eye == "left":
-        # ar_screen[eye_start_y:eye_start_y + 320, left_eye_start_x:left_eye_start_x + 320] = frame
-        left_eye_screen = frame
-
-        center_cross_bar_width = 0.01  # meter
-        center_cross_bar_width_pixel = int(center_cross_bar_width * ar_ppi * 39.3701)
-
-        left_eye_max_x = (ar_width - center_cross_bar_width_pixel) // 2
-        left_eye_screen_width = left_eye_max_x - left_eye_start_x
-        left_eye_screen = left_eye_screen[:, 0:left_eye_screen_width]
-
-        ar_screen[eye_start_y:eye_start_y + 320,
-        left_eye_start_x:left_eye_start_x + left_eye_screen_width] = left_eye_screen
-        pass
-
-    elif key_engine.get_key("ARMode").get("value") == "one eye" and preferred_eye == "right":  # copy right eye
-        # ar_screen[eye_start_y:eye_start_y + 320, right_eye_start_x:right_eye_start_x + 320] = frame
-        right_eye_screen = frame
-
-        center_cross_bar_width = 0.01  # meter
-        center_cross_bar_width_pixel = int(center_cross_bar_width * ar_ppi * 39.3701)
-
-        right_eye_min_x = (ar_width + center_cross_bar_width_pixel) // 2
-        right_eye_screen_width = right_eye_start_x + 320 - right_eye_min_x
-        right_eye_screen = right_eye_screen[:, 320 - right_eye_screen_width:]
-
-        ar_screen[eye_start_y:eye_start_y + 320,
-        right_eye_start_x + 320 - right_eye_screen_width:right_eye_start_x + 320] = right_eye_screen
-        pass
+    # if key_engine.get_key("ARMode").get("value") == "both eye":
+    #     # new version
+    #     left_eye_screen = frame
+    #     right_eye_screen = frame
+    #
+    #     center_cross_bar_width = 0.005  # meter
+    #     center_cross_bar_width_pixel = int(center_cross_bar_width * ar_ppi * 39.3701)
+    #
+    #     left_eye_max_x = (ar_width - center_cross_bar_width_pixel) // 2
+    #     right_eye_min_x = (ar_width + center_cross_bar_width_pixel) // 2
+    #
+    #     left_eye_screen_width = left_eye_max_x - left_eye_start_x
+    #     right_eye_screen_width = right_eye_start_x + 320 - right_eye_min_x
+    #
+    #     if left_eye_screen_width > 320: left_eye_screen_width = 320
+    #     if right_eye_screen_width > 320: right_eye_screen_width = 320
+    #
+    #     left_eye_screen = left_eye_screen[:, 0:left_eye_screen_width]
+    #     right_eye_screen = right_eye_screen[:, 320 - right_eye_screen_width:]
+    #
+    #     eye_screen_height = 320
+    #     eye_offset_overlap = 0
+    #     if eye_start_y < 0:
+    #         eye_screen_height += eye_start_y
+    #         eye_offset_overlap = -eye_start_y
+    #         eye_start_y = 0
+    #
+    #     left_eye_screen = left_eye_screen[eye_offset_overlap:320, :]
+    #     right_eye_screen = right_eye_screen[eye_offset_overlap:320, :]
+    #
+    #     ar_screen[eye_start_y:eye_start_y + eye_screen_height,
+    #     left_eye_start_x:left_eye_start_x + left_eye_screen_width] = left_eye_screen
+    #     ar_screen[eye_start_y:eye_start_y + eye_screen_height,
+    #     right_eye_start_x + eye_screen_height - right_eye_screen_width:right_eye_start_x + eye_screen_height] = right_eye_screen
+    #
+    # elif key_engine.get_key("ARMode").get("value") == "one eye" and preferred_eye == "left":
+    #     # ar_screen[eye_start_y:eye_start_y + 320, left_eye_start_x:left_eye_start_x + 320] = frame
+    #     left_eye_screen = frame
+    #
+    #     center_cross_bar_width = 0.01  # meter
+    #     center_cross_bar_width_pixel = int(center_cross_bar_width * ar_ppi * 39.3701)
+    #
+    #     left_eye_max_x = (ar_width - center_cross_bar_width_pixel) // 2
+    #     left_eye_screen_width = left_eye_max_x - left_eye_start_x
+    #     left_eye_screen = left_eye_screen[:, 0:left_eye_screen_width]
+    #
+    #     ar_screen[eye_start_y:eye_start_y + 320,
+    #     left_eye_start_x:left_eye_start_x + left_eye_screen_width] = left_eye_screen
+    #     pass
+    #
+    # elif key_engine.get_key("ARMode").get("value") == "one eye" and preferred_eye == "right":  # copy right eye
+    #     # ar_screen[eye_start_y:eye_start_y + 320, right_eye_start_x:right_eye_start_x + 320] = frame
+    #     right_eye_screen = frame
+    #
+    #     center_cross_bar_width = 0.01  # meter
+    #     center_cross_bar_width_pixel = int(center_cross_bar_width * ar_ppi * 39.3701)
+    #
+    #     right_eye_min_x = (ar_width + center_cross_bar_width_pixel) // 2
+    #     right_eye_screen_width = right_eye_start_x + 320 - right_eye_min_x
+    #     right_eye_screen = right_eye_screen[:, 320 - right_eye_screen_width:]
+    #
+    #     ar_screen[eye_start_y:eye_start_y + 320,
+    #     right_eye_start_x + 320 - right_eye_screen_width:right_eye_start_x + 320] = right_eye_screen
+    #     pass
 
     return ar_screen
 
@@ -685,7 +727,10 @@ def bluetooth_signal_callback(data):
 
 def boot_logo(started_ticks: float, target_ticks: float = 8.0):
     global screen
-    screen = black_screen
+    # screen = black_screen
+    # copy black screen to screen
+    screen = np.zeros((320, 320, 3), np.uint8)
+    screen = cv.cvtColor(screen, cv.COLOR_BGR2RGB)
     global splash_screen
     resized_splash_screen = cv.resize(splash_screen, (80, 80))
     screen[120:200, 120:200] = resized_splash_screen
