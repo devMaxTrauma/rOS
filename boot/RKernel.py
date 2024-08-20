@@ -356,9 +356,14 @@ def make_ar_frame(frame):
         right_eye_screen = right_eye_screen[:, 320 - right_eye_screen_width:]
 
         eye_screen_height = 320
+        eye_offset_overlap = 0
         if eye_start_y < 0:
             eye_screen_height += eye_start_y
+            eye_offset_overlap = -eye_start_y
             eye_start_y = 0
+
+        left_eye_screen = left_eye_screen[eye_offset_overlap:320, :]
+        right_eye_screen = right_eye_screen[eye_offset_overlap:320, :]
 
         ar_screen[eye_start_y:eye_start_y + eye_screen_height,
         left_eye_start_x:left_eye_start_x + left_eye_screen_width] = left_eye_screen
