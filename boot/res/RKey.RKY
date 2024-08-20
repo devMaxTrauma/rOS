@@ -21,7 +21,7 @@
 <name> DistanceDisplayEnabled </> <type> bool </> <value> True </> <comment> DistanceDisplayEnabledNoticeDistance display is enabled or not </>
 <name> DistanceDisplayWay </> <type> str </> <value> invertedColorInBox </> <comment> DistanceDisplayWayNoticeDistance display way </>
 <name> ROSARDisplayEnabled </> <type> bool </> <value> True </> <comment> ROSARDisplayEnabledNoticeROS AR display is enabled or not </>
-<name> AREyeDistance </> <type> float </> <value> 0.058 </> <comment> AREyeDistanceNoticeAR eye distance in meter </>
+<name> AREyeDistance </> <type> float </> <value> 0.068 </> <comment> AREyeDistanceNoticeAR eye distance in meter </>
 <name> ARDisplayPPI </> <type> int </> <value> 131 </> <comment> ARDisplayPPINoticeAR display PPI </>
 <name> ARDisplayWidth </> <type> int </> <value> 800 </> <comment> ARDisplayWidthNoticeAR display width </>
 <name> ARDisplayHeight </> <type> int </> <value> 480 </> <comment> ARDisplayHeightNoticeAR display height </>
