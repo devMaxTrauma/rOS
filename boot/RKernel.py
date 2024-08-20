@@ -345,6 +345,9 @@ def make_ar_frame(frame):
         left_eye_screen_width = left_eye_max_x - left_eye_start_x
         right_eye_screen_width = right_eye_start_x + 320 - right_eye_min_x
 
+        if left_eye_screen_width > 320: left_eye_screen_width = 320
+        if right_eye_screen_width > 320: right_eye_screen_width = 320
+
         left_eye_screen = left_eye_screen[:, 0:left_eye_screen_width]
         right_eye_screen = right_eye_screen[:, 320 - right_eye_screen_width:]
 
