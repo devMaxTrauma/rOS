@@ -314,6 +314,7 @@ def make_ar_frame(frame):
     ar_height = key_engine.get_key("ARDisplayHeight").get("value")
     ar_ppi = key_engine.get_key("ARDisplayPPI").get("value")
     user_eye_distance = key_engine.get_key("AREyeDistance").get("value")  # meter
+    user_eye_level_adjust = key_engine.get_key("AREyeLevelAdjust").get("value")  # meter
 
     ar_screen = np.zeros((ar_height, ar_width, 3), np.uint8)
     ar_screen = cv.cvtColor(ar_screen, cv.COLOR_BGR2RGB)
@@ -321,9 +322,12 @@ def make_ar_frame(frame):
     eye_distance_to_inch = user_eye_distance * 39.3701
     eye_distance_to_pixel = int(eye_distance_to_inch * ar_ppi)
 
+    eye_level_adjust_to_inch = user_eye_level_adjust * 39.3701
+    eye_level_adjust_to_pixel = int(eye_level_adjust_to_inch * ar_ppi)
+
     left_eye_center_x = (ar_width // 2) - (eye_distance_to_pixel // 2)
     right_eye_center_x = (ar_width // 2) + (eye_distance_to_pixel // 2)
-    eye_center_y = ar_height // 2
+    eye_center_y = ar_height // 2 - eye_level_adjust_to_pixel
 
     left_eye_start_x = left_eye_center_x - (320 // 2)
     right_eye_start_x = right_eye_center_x - (320 // 2)
