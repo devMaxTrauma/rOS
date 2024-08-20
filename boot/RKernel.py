@@ -166,6 +166,12 @@ def get_camera():
     return camera
 
 
+def align_camera_frame(frame):
+    camera_eye_location = key_engine.get_key("RaspberryPiCameraEye").get("value")
+    if camera_eye_location == "left": return rotate_clockwise_90(frame)
+    if camera_eye_location == "right": return rotate_counterclockwise_90(frame)
+
+
 def get_frame():
     global kernel_panicked
     if kernel_panicked:
@@ -174,6 +180,8 @@ def get_frame():
     if "picamera2" in sys.modules:
         frame = camera.capture_array()
         frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+        camera_eye_location = key_engine.get_key("RaspberryPiCameraEye").get("value")
+        frame = align_camera_frame(frame)
     else:
         frame = camera.read()[1]
 
@@ -716,6 +724,18 @@ def boot_logo(started_ticks: float, target_ticks: float = 8.0):
                                    boot_progress / 100)),
                        320 - progress_bar_height_margin - progress_bar_corner_radius), progress_bar_corner_radius,
               (255, 255, 255), -1)
+
+
+def rotate_clockwise_90(frame):
+    return cv.transpose(cv.flip(frame, 0))
+
+
+def rotate_counterclockwise_90(frame):
+    return cv.transpose(cv.flip(frame, 1))
+
+
+def rotate_180(frame):
+    return cv.flip(frame, -1)
 
 
 print("defs defined.")

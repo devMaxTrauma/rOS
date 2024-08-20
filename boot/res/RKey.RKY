@@ -1,4 +1,4 @@
-<name> ROSVersion </> <type> str </> <value> EdgeRunner.5 </> <comment> ROSVersion </>
+<name> ROSVersion </> <type> str </> <value> EdgeRunner.6.beta </> <comment> ROSVersion </>
 <name> ROSBootChimeEnabled </> <type> bool </> <value> True </> <comment> ROSBootChimeEnabledNoticeROS boot chime is enabled or not </>
 <name> ROSSplashScreenTime </> <type> float </> <value> 6.0 </> <comment> ROSSplashScreenTimeNoticeROS splash screen time </>
 <name> ROSIsOn </> <type> bool </> <value> False </> <comment> ROSIsOnNoticeROS is shutdown properly </>
@@ -45,3 +45,4 @@
 <name> USSRegionDisplayColorRed </> <type> int </> <value> 208 </> <comment> USSRegionDisplayColorRedNoticeUSS region display color red </>
 <name> USSRegionDisplayColorGreen </> <type> int </> <value> 252 </> <comment> USSRegionDisplayColorGreenNoticeUSS region display color green </>
 <name> USSRegionDisplayColorBlue </> <type> int </> <value> 92 </> <comment> USSRegionDisplayColorBlueNoticeUSS region display color blue </>
+<name> RaspberryPiCameraEye </> <type> str </> <value> right </> <comment> RaspberryPiCameraEyeNoticeRaspberry Pi camera eye </>
