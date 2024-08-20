@@ -30,6 +30,9 @@
 <name> ROSObjectDistanceCalculateConstantRaspberryPi </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantRaspberryPiNoticeROS object distance calculate constant for Raspberry Pi </>
 <name> ROSObjectDistanceCalculateConstantMacBookPro </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantMacBookProNoticeROS object distance calculate constant for MacBook Pro </>
 <name> ROSObjectDistanceCalculateConstantIphone </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantIphoneNoticeROS object distance calculate constant for iPhone </>
+<name> ROSObjectDistanceCalculateSideErrorMarginByVision </> <type> int </> <value> 5 </> <comment> ROSObjectDistanceCalculateSideErrorMarginByVisionNoticeROS object distance calculate side error margin by vision </>
+<name> ROSObjectDistanceCalculateXAxisOutOfBoundCheckEnabled </> <type> bool </> <value> True </> <comment> ROSObjectDistanceCalculateXAxisOutOfBoundCheckEnabledNoticeROS object distance calculate X axis out of bound check is enabled or not </>
+<name> ROSObjectDistanceCalculateYAxisOutOfBoundCheckEnabled </> <type> bool </> <value> False </> <comment> ROSObjectDistanceCalculateYAxisOutOfBoundCheckEnabledNoticeROS object distance calculate Y axis out of bound check is enabled or not </>
 <name> SoundVolume </> <type> float </> <value> 0.3 </> <comment> SoundVolumeNoticeSound volume </>
 <name> Notification Display Overlap </> <type> bool </> <value> True </> <comment> Notification Display OverlapNoticeNotification display overlap </>
 <name> Notification TTS Enabled </> <type> bool </> <value> True </> <comment> Notification TTS EnabledNoticeNotification TTS is enabled or not </>

@@ -207,8 +207,13 @@ def calculate_distance(class_index: int, box):
 
     # check if the object is in the center of the frame and can be calculated by vision
     can_calculated_by_vision = True
-    if box_start_x <= 0 or box_end_x >= 320: can_calculated_by_vision = False
-    if box_start_y <= 0 or box_end_y >= 320: can_calculated_by_vision = False
+    vision_side_margin = key_engine.get_key("ROSObjectDistanceCalculateSideErrorMarginByVision").get("value")
+    x_check = key_engine.get_key("ROSObjectDistanceCalculateYAxisOutOfBoundCheckEnabled").get("value")
+    y_check = key_engine.get_key("ROSObjectDistanceCalculateXAxisOutOfBoundCheckEnabled").get("value")
+    if (box_start_x <= vision_side_margin or box_end_x >= (320 - vision_side_margin)) and x_check:
+        can_calculated_by_vision = False
+    if (box_start_y <= vision_side_margin or box_end_y >= (320 - vision_side_margin)) and y_check:
+        can_calculated_by_vision = False
 
     can_calculated_by_uss = False
     if "boot.RUSS" in sys.modules:
@@ -242,6 +247,9 @@ def calculate_distance(class_index: int, box):
     elif can_calculated_by_uss and not can_calculated_by_vision:
         likely_distance_in_meter = uss_distance_in_meter
     elif not can_calculated_by_uss and can_calculated_by_vision:
+        likely_distance_in_meter = vision_distance_in_meter
+    elif can_calculated_by_uss and can_calculated_by_vision:
+        # I think vision is more precise
         likely_distance_in_meter = vision_distance_in_meter
 
     unit = key_engine.get_key("DistanceUnit").get("value")
