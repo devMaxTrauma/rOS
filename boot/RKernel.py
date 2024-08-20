@@ -659,7 +659,7 @@ while time.time() - started_time < splash_display_time:
     # debug
     # if hard_warning_icon is None:
     #     kernel_panicked = True
-    if cv.waitKey(1) & 0xFF == 27:
+    if cv.waitKey(1) & 0xFF == key_engine.get_key("ROSOffKey").get("value"):
         shutdown()
 
 tts_engine.sound_engine = sound_engine

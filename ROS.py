@@ -18,8 +18,7 @@ while True:
     kernel.set_tensor_input()
     kernel.render_tensor_and_etc()
     kernel.tick_screen()
-    if kernel.cv.waitKey(1) & 0xFF == 27:
-        break
+    if kernel.cv.waitKey(1) & 0xFF == kernel.key_engine.get_key("ROSOffKey").get("value"): break
 
     # if time.time() - debug_start_time > 3:
     #     kernel.notification_engine.add_notification("hard_warning.png", "3 seconds passed.", ".")

@@ -1,4 +1,4 @@
-<name> ROSVersion </> <type> str </> <value> EdgeRunner.4.beta3 </> <comment> ROSVersion </>
+<name> ROSVersion </> <type> str </> <value> EdgeRunner.4 </> <comment> ROSVersion </>
 <name> ROSBootChimeEnabled </> <type> bool </> <value> True </> <comment> ROSBootChimeEnabledNoticeROS boot chime is enabled or not </>
 <name> ROSSplashScreenTime </> <type> float </> <value> 6.0 </> <comment> ROSSplashScreenTimeNoticeROS splash screen time </>
 <name> ROSIsOn </> <type> bool </> <value> False </> <comment> ROSIsOnNoticeROS is shutdown properly </>
@@ -9,7 +9,7 @@
 <name> ROSRunningDevice </> <type> str </> <value> macbook pro </> <comment> ROSRunningDeviceNoticeROS running device </>
 <name> ROSModelActive </> <type> bool </> <value> True </> <comment> ROSModelActiveNoticeROS model is active or not </>
 <name> ROSMindDisplayWay </> <type> str </> <value> filled box </> <comment> ROSMindDisplayWayNoticeROS mind display way </>
-<name> ROSDisplayFPSEnable </> <type> bool </> <value> True </> <comment> ROSDisplayFPSEnableNoticeROS display FPS is enable or not </>
+<name> ROSDisplayFPSEnable </> <type> bool </> <value> False </> <comment> ROSDisplayFPSEnableNoticeROS display FPS is enable or not </>
 <name> SLDDeviceIP </> <type> str </> <value> 0.0.0.0 </> <comment> SLDDeviceIPNoticeSLD device IP </>
 <name> SLDDevicePort </> <type> int </> <value> 5001 </> <comment> SLDDevicePortNoticeSLD device port </>
 <name> SLDConnectTimeout </> <type> int </> <value> 5 </> <comment> SLDConnectTimeoutNoticeSLD connect timeout </>
@@ -30,3 +30,4 @@
 <name> SoundVolume </> <type> float </> <value> 0.3 </> <comment> SoundVolumeNoticeSound volume </>
 <name> Notification Display Overlap </> <type> bool </> <value> True </> <comment> Notification Display OverlapNoticeNotification display overlap </>
 <name> Notification TTS Enabled </> <type> bool </> <value> True </> <comment> Notification TTS EnabledNoticeNotification TTS is enabled or not </>
+<name> ROSOffKey </> <type> int </> <value> 27 </> <comment> ROS Shutdown Key </>
