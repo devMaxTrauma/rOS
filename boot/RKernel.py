@@ -187,45 +187,107 @@ def get_frame():
     frame_average_green = np.average(frame[:, :, 1])
     frame_average_blue = np.average(frame[:, :, 0])
     frame_average_brightness = (frame_average_red + frame_average_green + frame_average_blue) / 3
-    if frame_average_brightness < 60 and notification_engine.get_notification(message="low brightness detected") is None:
-        notification_engine.add_notification("hard_warning.png", "low brightness detected", "저조도 감지. 사용자의 즉각적인 주의가 필요합니다.")
+    if frame_average_brightness < 60 and notification_engine.get_notification(
+            message="low brightness detected") is None:
+        notification_engine.add_notification("hard_warning.png", "low brightness detected",
+                                             "저조도 감지. 사용자의 즉각적인 주의가 필요합니다.")
 
     # make frame 320x320
     return get_320_320_frame(frame)
 
 
-def calculate_distance(class_index: int, box_width_pixel):
+# def calculate_distance(class_index: int, box_width_pixel):
+def calculate_distance(class_index: int, box):
+    box_start_x = box[1]
+    box_end_x = box[3]
+    box_start_y = box[0]
+    box_end_y = box[2]
+    if label_engine.get_label(class_index + 1) is None: return str("N/A")
+    object_average_width = label_engine.get_label(class_index + 1).get("average_width")
+
+    # check if the object is in the center of the frame and can be calculated by vision
+    can_calculated_by_vision = True
+    if box_start_x <= 0 or box_end_x >= 320: can_calculated_by_vision = False
+    if box_start_y <= 0 or box_end_y >= 320: can_calculated_by_vision = False
+
+    can_calculated_by_uss = False
+    if "boot.RUSS" in sys.modules:
+        # check if the object is in the center of the frame and can be calculated by uss
+        uss_region_start_x = key_engine.get_key("USSRegionStartX").get("value")
+        uss_region_end_x = key_engine.get_key("USSRegionEndX").get("value")
+        uss_region_start_y = key_engine.get_key("USSRegionStartY").get("value")
+        uss_region_end_y = key_engine.get_key("USSRegionEndY").get("value")
+
+        inside_uss_x_region = False
+        inside_uss_y_region = False
+        if box_end_x >= uss_region_start_x and box_start_x <= uss_region_end_x: inside_uss_x_region = True
+        if box_end_y >= uss_region_start_y and box_start_y <= uss_region_end_y: inside_uss_y_region = True
+
+        can_calculated_by_uss = inside_uss_x_region and inside_uss_y_region
+        pass
+
+    # check camera system and get calculate constant
     if "picamera2" in sys.modules:
         distance_calculate_constant = key_engine.get_key("ROSObjectDistanceCalculateConstantRaspberryPi").get("value")
     else:
         distance_calculate_constant = key_engine.get_key("ROSObjectDistanceCalculateConstantMacBookPro").get("value")
 
-    if label_engine.get_label(class_index + 1) is None:
-        object_average_width = -1.0
-    else:
-        object_average_width = label_engine.get_label(class_index + 1).get("average_width")
+    vision_distance_in_meter = object_average_width / ((box_end_x - box_start_x) / distance_calculate_constant)
+    uss_distance_in_meter = 0.0
+    if "boot.RUSS" in sys.modules: uss_distance_in_meter = ultrasonic_engine.output_distance
 
-    if object_average_width == -1.0:
-        return str("N/A")
+    likely_distance_in_meter = 0.0
+    if not can_calculated_by_uss and not can_calculated_by_vision:
+        return str("")
+    elif can_calculated_by_uss and not can_calculated_by_vision:
+        likely_distance_in_meter = uss_distance_in_meter
+    elif not can_calculated_by_uss and can_calculated_by_vision:
+        likely_distance_in_meter = vision_distance_in_meter
 
-    distance_in_meter = object_average_width / (box_width_pixel / distance_calculate_constant)
     unit = key_engine.get_key("DistanceUnit").get("value")
-    if unit == "SI" and distance_in_meter < 1:
-        return str(round(distance_in_meter * 100, 2)) + " cm"
-    elif unit == "SI" and distance_in_meter <= 1000:
-        return str(round(distance_in_meter, 2)) + " m"
-    elif unit == "SI" and distance_in_meter > 1000:
-        return str(round(distance_in_meter / 1000, 2)) + " km"
-    elif unit == "US" and distance_in_meter < 0.3048:
-        return str(round(distance_in_meter * 39.3701, 2)) + " in"
-    elif unit == "US" and distance_in_meter <= 0.9144:
-        return str(round(distance_in_meter * 3.28084, 2)) + " ft"
-    elif unit == "US" and distance_in_meter <= 1609.34:
-        return str(round(distance_in_meter * 1.09361, 2)) + " yd"
-    elif unit == "US" and distance_in_meter > 1609.34:
-        return str(round(distance_in_meter / 1609.34, 2)) + " mi"
-    else:
-        return str("ERR")
+    if unit == "SI":
+        if likely_distance_in_meter < 1: return str(round(likely_distance_in_meter * 100, 2)) + " cm"
+        if likely_distance_in_meter <= 1000: return str(round(likely_distance_in_meter, 2)) + " m"
+        if likely_distance_in_meter > 1000: return str(round(likely_distance_in_meter / 1000, 2)) + " km"
+    if unit == "US":
+        if likely_distance_in_meter < 0.3048: return str(round(likely_distance_in_meter * 39.3701, 2)) + " in"
+        if likely_distance_in_meter <= 0.9144: return str(round(likely_distance_in_meter * 3.28084, 2)) + " ft"
+        if likely_distance_in_meter <= 1609.34: return str(round(likely_distance_in_meter * 1.09361, 2)) + " yd"
+        if likely_distance_in_meter > 1609.34: return str(round(likely_distance_in_meter / 1609.34, 2)) + " mi"
+    pass
+    return str("ERR")
+    # # this code (below) is discarded
+    # if "picamera2" in sys.modules:
+    #     distance_calculate_constant = key_engine.get_key("ROSObjectDistanceCalculateConstantRaspberryPi").get("value")
+    # else:
+    #     distance_calculate_constant = key_engine.get_key("ROSObjectDistanceCalculateConstantMacBookPro").get("value")
+    #
+    # if label_engine.get_label(class_index + 1) is None:
+    #     object_average_width = -1.0
+    # else:
+    #     object_average_width = label_engine.get_label(class_index + 1).get("average_width")
+    #
+    # if object_average_width == -1.0:
+    #     return str("N/A")
+    #
+    # distance_in_meter = object_average_width / (box_width_pixel / distance_calculate_constant)
+    # unit = key_engine.get_key("DistanceUnit").get("value")
+    # if unit == "SI" and distance_in_meter < 1:
+    #     return str(round(distance_in_meter * 100, 2)) + " cm"
+    # elif unit == "SI" and distance_in_meter <= 1000:
+    #     return str(round(distance_in_meter, 2)) + " m"
+    # elif unit == "SI" and distance_in_meter > 1000:
+    #     return str(round(distance_in_meter / 1000, 2)) + " km"
+    # elif unit == "US" and distance_in_meter < 0.3048:
+    #     return str(round(distance_in_meter * 39.3701, 2)) + " in"
+    # elif unit == "US" and distance_in_meter <= 0.9144:
+    #     return str(round(distance_in_meter * 3.28084, 2)) + " ft"
+    # elif unit == "US" and distance_in_meter <= 1609.34:
+    #     return str(round(distance_in_meter * 1.09361, 2)) + " yd"
+    # elif unit == "US" and distance_in_meter > 1609.34:
+    #     return str(round(distance_in_meter / 1609.34, 2)) + " mi"
+    # else:
+    #     return str("ERR")
 
 
 def make_ar_frame(frame):
@@ -463,10 +525,34 @@ def render_tensor_and_etc():
     if key_engine.get_key("ROSDisplayFPSEnable").get("value"):
         main_screen_fps = round(fps_engine.get_main_screen_fps(), 2)
         tensor_fps = round(fps_engine.get_tensor_fps(), 2)
+
+        red = key_engine.get_key("ROSDisplayFPSColorRed").get("value")
+        green = key_engine.get_key("ROSDisplayFPSColorGreen").get("value")
+        blue = key_engine.get_key("ROSDisplayFPSColorBlue").get("value")
+
+        # cv.putText(new_frame, "MS FPS: " + str(main_screen_fps), (10, 20), cv.FONT_HERSHEY_SIMPLEX, 0.5,
+        #            (255, 255, 255), 1, cv.LINE_AA)
+        # cv.putText(new_frame, " T FPS: " + str(tensor_fps), (10, 40), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255),
+        #            1, cv.LINE_AA)
         cv.putText(new_frame, "MS FPS: " + str(main_screen_fps), (10, 20), cv.FONT_HERSHEY_SIMPLEX, 0.5,
-                   (255, 255, 255), 1, cv.LINE_AA)
-        cv.putText(new_frame, " T FPS: " + str(tensor_fps), (10, 40), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255),
+                   (blue, green, red), 1, cv.LINE_AA)
+        cv.putText(new_frame, " T FPS: " + str(tensor_fps), (10, 40), cv.FONT_HERSHEY_SIMPLEX, 0.5, (blue, green, red),
                    1, cv.LINE_AA)
+
+    # render USSRegion
+    if key_engine.get_key("USSRegionDisplayEnabled").get("value") and "boot.RUSS" in sys.modules:
+        uss_region_start_x = key_engine.get_key("USSRegionStartX").get("value")
+        uss_region_end_x = key_engine.get_key("USSRegionEndX").get("value")
+        uss_region_start_y = key_engine.get_key("USSRegionStartY").get("value")
+        uss_region_end_y = key_engine.get_key("USSRegionEndY").get("value")
+
+        red = key_engine.get_key("USSRegionDisplayColorRed").get("value")
+        green = key_engine.get_key("USSRegionDisplayColorGreen").get("value")
+        blue = key_engine.get_key("USSRegionDisplayColorBlue").get("value")
+        # cv.rectangle(new_frame, (uss_region_start_x, uss_region_start_y), (uss_region_end_x, uss_region_end_y),
+        #              (208, 252, 92), 1)
+        cv.rectangle(new_frame, (uss_region_start_x, uss_region_start_y), (uss_region_end_x, uss_region_end_y),
+                     (blue, green, red), -1)
     global screen
     screen = new_frame
     return new_frame
@@ -486,7 +572,8 @@ def tick_screen():
     fps_engine.add_candidate_main_fps()
     if fps_engine.get_main_screen_fps() < 20 and notification_engine.get_notification(
             message="Low System FPS detected.") is None:
-        notification_engine.add_notification("warning.png", "Low System FPS detected.", "시스템 FPS가 낮습니다. 늦은 반응에 대비 해주세요.")
+        notification_engine.add_notification("warning.png", "Low System FPS detected.",
+                                             "시스템 FPS가 낮습니다. 늦은 반응에 대비 해주세요.")
     if fps_engine.get_tensor_fps() < 15 and notification_engine.get_notification(
             message="Low Tensor FPS detected.") is None:
         notification_engine.add_notification("warning.png", "Low Tensor FPS detected.", "텐서 FPS가 낮습니다. 늦은 반응에 대비 해주세요.")
@@ -553,7 +640,8 @@ def bluetooth_signal_callback(data):
         notification_engine.add_notification("warning.png", "Find My is activated.", "나의 찾기가 활성화 되었습니다.")
     elif data == b"b":
         find_my_keep_sounding_channel = sound_engine.play("boot/res/FindMy_long.mp3", -1)
-        find_my_notification = notification_engine.add_notification("warning.png", "Find My is activated.", "나의 찾기가 활성화 되었습니다.")
+        find_my_notification = notification_engine.add_notification("warning.png", "Find My is activated.",
+                                                                    "나의 찾기가 활성화 되었습니다.")
         find_my_notification.display_duration = 1000000
         pass
     elif data == b"c":

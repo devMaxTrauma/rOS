@@ -1,4 +1,4 @@
-<name> ROSVersion </> <type> str </> <value> EdgeRunner.4 </> <comment> ROSVersion </>
+<name> ROSVersion </> <type> str </> <value> EdgeRunner.5.beta </> <comment> ROSVersion </>
 <name> ROSBootChimeEnabled </> <type> bool </> <value> True </> <comment> ROSBootChimeEnabledNoticeROS boot chime is enabled or not </>
 <name> ROSSplashScreenTime </> <type> float </> <value> 6.0 </> <comment> ROSSplashScreenTimeNoticeROS splash screen time </>
 <name> ROSIsOn </> <type> bool </> <value> False </> <comment> ROSIsOnNoticeROS is shutdown properly </>
@@ -9,7 +9,10 @@
 <name> ROSRunningDevice </> <type> str </> <value> macbook pro </> <comment> ROSRunningDeviceNoticeROS running device </>
 <name> ROSModelActive </> <type> bool </> <value> True </> <comment> ROSModelActiveNoticeROS model is active or not </>
 <name> ROSMindDisplayWay </> <type> str </> <value> filled box </> <comment> ROSMindDisplayWayNoticeROS mind display way </>
-<name> ROSDisplayFPSEnable </> <type> bool </> <value> False </> <comment> ROSDisplayFPSEnableNoticeROS display FPS is enable or not </>
+<name> ROSDisplayFPSEnable </> <type> bool </> <value> True </> <comment> ROSDisplayFPSEnableNoticeROS display FPS is enable or not </>
+<name> ROSDisplayFPSColorRed </> <type> int </> <value> 138 </> <comment> ROSDisplayFPSColorRedNoticeROS display FPS color red </>
+<name> ROSDisplayFPSColorGreen </> <type> int </> <value> 43 </> <comment> ROSDisplayFPSColorGreenNoticeROS display FPS color green </>
+<name> ROSDisplayFPSColorBlue </> <type> int </> <value> 226 </> <comment> ROSDisplayFPSColorBlueNoticeROS display FPS color blue </>
 <name> SLDDeviceIP </> <type> str </> <value> 0.0.0.0 </> <comment> SLDDeviceIPNoticeSLD device IP </>
 <name> SLDDevicePort </> <type> int </> <value> 5001 </> <comment> SLDDevicePortNoticeSLD device port </>
 <name> SLDConnectTimeout </> <type> int </> <value> 5 </> <comment> SLDConnectTimeoutNoticeSLD connect timeout </>
@@ -31,3 +34,11 @@
 <name> Notification Display Overlap </> <type> bool </> <value> True </> <comment> Notification Display OverlapNoticeNotification display overlap </>
 <name> Notification TTS Enabled </> <type> bool </> <value> True </> <comment> Notification TTS EnabledNoticeNotification TTS is enabled or not </>
 <name> ROSOffKey </> <type> int </> <value> 27 </> <comment> ROS Shutdown Key </>
+<name> USSRegionStartX </> <type> int </> <value> 140 </> <comment> USSRegionStartXNoticeUSS region start X </>
+<name> USSRegionEndX </> <type> int </> <value> 180 </> <comment> USSRegionEndXNoticeUSS region end X </>
+<name> USSRegionStartY </> <type> int </> <value> 140 </> <comment> USSRegionStartYNoticeUSS region start Y </>
+<name> USSRegionEndY </> <type> int </> <value> 180 </> <comment> USSRegionEndYNoticeUSS region end Y </>
+<name> USSRegionDisplayEnabled </> <type> bool </> <value> True </> <comment> USSRegionDisplayEnabledNoticeUSS region display is enabled or not </>
+<name> USSRegionDisplayColorRed </> <type> int </> <value> 208 </> <comment> USSRegionDisplayColorRedNoticeUSS region display color red </>
+<name> USSRegionDisplayColorGreen </> <type> int </> <value> 252 </> <comment> USSRegionDisplayColorGreenNoticeUSS region display color green </>
+<name> USSRegionDisplayColorBlue </> <type> int </> <value> 92 </> <comment> USSRegionDisplayColorBlueNoticeUSS region display color blue </>

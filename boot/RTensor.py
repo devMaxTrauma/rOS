@@ -61,8 +61,9 @@ def process_frame():
     for i in range(len(boxes)):
         if scores[i] < 0.5: continue
         # get box width
-        box_width = (boxes[i][3] - boxes[i][1]) * 320
-        if calculate_distance_function is not None: distances[i] = calculate_distance_function(classes[i], box_width)
+        # box_width = (boxes[i][3] - boxes[i][1]) * 320
+        box = boxes[i] * 320
+        if calculate_distance_function is not None: distances[i] = calculate_distance_function(classes[i], box)
         else: distances[i] = None
 
     global tensor_output
