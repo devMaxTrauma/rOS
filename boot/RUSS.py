@@ -22,11 +22,9 @@ ultra_sonic_time_out = 0.04
 def shutdown():
     global ultra_sonic_sensor_read_enabled
     ultra_sonic_sensor_read_enabled = False
-    try:
-        ultra_sonic_sensor_thread.join()
-    except Exception as e:
-        print("Failed to join ultra_sonic_sensor_thread.")
-        print(e)
+
+    global ultra_sonic_sensor_thread
+    if ultra_sonic_sensor_thread is not None: ultra_sonic_sensor_thread.join()
     pass
 
 

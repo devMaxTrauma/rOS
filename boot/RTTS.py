@@ -17,7 +17,6 @@ except ImportError:
 
 sound_engine = None
 generator_working = True
-tts_generator_thread = None
 tts_order_list = []
 
 
@@ -47,10 +46,10 @@ def play_tts(text, lang='ko'):
 
 
 def shutdown():
-    try:
-        tts_generator_thread.join()
-    except Exception:
-        pass
+    global generator_working
+    generator_working = False
+    global tts_generator_thread
+    if tts_generator_thread is not None: tts_generator_thread.join()
     print("RTTS shutdown.")
 
 

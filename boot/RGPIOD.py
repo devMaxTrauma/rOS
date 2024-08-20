@@ -46,6 +46,7 @@ class PWM:
 
     def pwm_stop(self):
         self.pwm_run = False
+        if self.pwm_thread is not None: self.pwm_thread.join()
 
     def change_duty_rate(self, duty_rate):  # 0.0 to 1.0
         self.duty_rate = duty_rate
