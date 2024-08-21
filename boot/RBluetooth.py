@@ -63,8 +63,7 @@ def bluetooth_connect_try():
     global client_info
     global bluetooth_rx_thread
 
-    while bluetooth_connect_try_enabled:
-        try_routine()
+    while bluetooth_connect_try_enabled: try_routine()
 
 
 def recv():

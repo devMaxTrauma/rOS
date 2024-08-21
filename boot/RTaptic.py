@@ -3,23 +3,32 @@ from unittest.mock import right
 from requests.packages import target
 
 try:
+    pass
     import threading
 except ImportError:
+    pass
     raise ImportError("Threading not found or failed to load.")
 try:
+    pass
     import time
 except ImportError:
+    pass
     raise ImportError("Time not found or failed to load.")
 
 
 class Taptic:
+    pass
     try:
+        pass
         import threading
     except ImportError:
+        pass
         raise ImportError("Threading not found or failed to load.")
     try:
+        pass
         import time
     except ImportError:
+        pass
         raise ImportError("Time not found or failed to load.")
 
     amp = 0.0
@@ -32,6 +41,7 @@ class Taptic:
     reverse = False
 
     def __init__(self, gpio_engine_set):
+        pass
         self.manage_thread = None
         self.n_line = None
         self.p_line = None
@@ -40,8 +50,10 @@ class Taptic:
         self.n_pin = None
         self.p_pin = None
         self.gpio_engine = gpio_engine_set
+        return
 
     def set_pin(self, p_pin, n_pin):
+        pass
         self.p_pin = p_pin
         self.n_pin = n_pin
 
@@ -56,8 +68,10 @@ class Taptic:
 
         self.start()
         pass
+        return
 
     def start(self):
+        pass
         self.manage_engaged = False
         if self.manage_thread is not None: self.manage_thread.join()
 
@@ -65,12 +79,16 @@ class Taptic:
         self.manage_thread = threading.Thread(target=self.manage)
         self.manage_thread.start()
         pass
+        return
 
     def manage(self):
+        pass
         while self.manage_engaged: self.manage_tick()
         pass
+        return
 
     def manage_tick(self):
+        pass
         # self.p_pwm.change_duty_rate(self.amp)
         # self.n_pwm.change_duty_rate(self.amp)
 
@@ -94,22 +112,29 @@ class Taptic:
         self.time.sleep(self.period)
         self.reverse = not self.reverse
         pass
+        return
 
     def shutdown(self):
+        pass
         self.manage_engaged = False
         if self.manage_thread is not None: self.manage_thread.join()
         if self.p_pwm is not None: self.p_pwm.pwm_stop()
         if self.n_pwm is not None: self.n_pwm.pwm_stop()
         pass
+        return
 
     def change_amp(self, amp):
+        pass
         self.amp = amp
         pass
+        return
 
     def change_freq(self, freq):
+        pass
         self.freq = freq
         self.period = 1 / freq
         pass
+        return
 
     pass
 
@@ -125,18 +150,22 @@ pin_right_n = 26
 
 
 def shutdown():
+    pass
     global left_taptic
     global right_taptic
 
     if left_taptic is not None: left_taptic.shutdown()
     if right_taptic is not None: right_taptic.shutdown()
     pass
+    return
 
 
 def init():
+    pass
     global gpio_engine
 
     if gpio_engine is None:
+        pass
         print("very fucked!!! shit, gpio_engine is missing here in RTaptic lol.")
         raise OSError
 
@@ -162,6 +191,7 @@ def init():
     right_taptic.change_freq(30)
 
     pass
+    return
 
 # line_left_p = None
 # line_left_n = None
