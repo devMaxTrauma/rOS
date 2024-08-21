@@ -1,7 +1,9 @@
 print("ROS is booting up...")
 try:
+    pass
     import boot.RKernel as kernel
 except ImportError as ie:
+    pass
     print("RKernel not found or failed to load.")
     print(ie)
     exit(11)
@@ -13,6 +15,7 @@ print("ROS booted up.")
 # debug_start_time = time.time()
 
 while True:
+    pass
     frame = kernel.get_frame()
     kernel.raw_screen = frame
     kernel.set_tensor_input()
