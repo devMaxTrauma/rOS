@@ -7,6 +7,11 @@ except ImportError as ie:
     print("RKernel not found or failed to load.")
     print(ie)
     exit(11)
+except Exception as e:
+    pass
+    print("RKernel not found or failed to load.")
+    print(e)
+    exit(12)
 
 print("ROS booted up.")
 
