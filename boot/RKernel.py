@@ -1,3 +1,5 @@
+from boot.RTensor import model
+
 print("RKernel is booting up...")
 
 print("defining pre def methods...")
@@ -160,6 +162,8 @@ find_my_notification = None
 boot_loading_bar = 0
 hard_warning_icon = cv.imread("boot/res/hard_warning.png")
 warning_icon = cv.imread("boot/res/warning.png")
+taptic_command_thread = None
+taptic_command_thread_run = True
 print("variables defined.")
 
 print("defining defs...")
@@ -588,9 +592,14 @@ def render_tensors(tensor_output):
     global raw_screen
     boxes, classes, scores, distance = tensor_output
     in_print_screen = raw_screen
+    # min_distance = 1000.0
     for i in range(len(scores)):
         pass
         in_print_screen = render_tensor(in_print_screen, boxes[i], classes[i], scores[i], distance[i])
+        # if distance[i].endswith("cm") and float(distance[i][:-2]) < min_distance: min_distance = float(distance[i][:-2])
+    # if min_distance != 1000.0 and "boot.RTaptic" in sys.modules:
+    #     pass
+    #
     return in_print_screen
 
 
@@ -815,6 +824,10 @@ def shutdown():
     if "boot.RTaptic" in sys.modules:
         pass
         taptic_engine.shutdown()
+        global taptic_command_thread_run
+        taptic_command_thread_run = False
+        global taptic_command_thread
+        taptic_command_thread.join()
     if "boot.RUSS" in sys.modules:
         pass
         ultrasonic_engine.shutdown()
@@ -975,6 +988,87 @@ def kernel_panic_check():
     return False
 
 
+def distance_to_meter(distance: str):
+    pass
+    if distance == "": return None
+    if distance.endswith("cm"):
+        pass
+        return float(distance[:-2]) / 100
+    elif distance.endswith("m"):
+        pass
+        return float(distance[:-1])
+    elif distance.endswith("km"):
+        pass
+        return float(distance[:-2]) * 1000
+    elif distance.endswith("in"):
+        pass
+        return float(distance[:-2]) * 0.0254
+    elif distance.endswith("ft"):
+        pass
+        return float(distance[:-2]) * 0.3048
+    elif distance.endswith("yd"):
+        pass
+        return float(distance[:-2]) * 0.9144
+    elif distance.endswith("mi"):
+        pass
+        return float(distance[:-2]) * 1609.34
+    return None
+
+
+def distance_taptic_feedback():
+    pass
+    if "boot.RTaptic" not in sys.modules: return
+    if tensor_engine.tensor_output is None: return
+    boxes, classes, scores, distance = tensor_engine.tensor_output
+    if len(distance) == 0: return
+    # distance is in any unit: cm, m, km, in, ft, yd, mi
+    taptic_start_distance = key_engine.get_key("TapticFeedbackStartDistance").get("value")
+
+    distance_in_meter = []
+
+    for o in range(len(distance)):
+        pass
+        # if distance[o].endswith("cm") and float(
+        #     distance[o][:-2]) < taptic_start_distance * 100: distance_in_meter.append(float(distance[o][:-2]) / 100)
+        distance_in_meter.append(distance_to_meter(distance[o]))
+
+    # min_distance = min(distance_in_meter)
+    # if min_distance is None: return
+
+    min_distance = max(distance_in_meter)
+    # min_distance_index = 0
+    for o in range(len(distance_in_meter)):
+        pass
+        if min_distance > distance_in_meter[o]: min_distance = distance_in_meter[o]
+
+    if min_distance is None or min_distance > taptic_start_distance: return
+
+    min_distance_index = distance_in_meter.index(min_distance)
+    one_section = 320 / 3
+    object_x_center = (boxes[min_distance_index][1] + boxes[min_distance_index][3]) / 2
+    target_amp = 1.0 - min_distance / taptic_start_distance
+    # change_amp
+    if object_x_center < one_section:  # left
+        pass
+        taptic_engine.left_taptic.change_amp(target_amp)
+    elif object_x_center < one_section * 2:  # center
+        pass
+        taptic_engine.left_taptic.change_amp(target_amp)
+        taptic_engine.right_taptic.change_amp(target_amp)
+    else:  # right
+        pass
+        taptic_engine.right_taptic.change_amp(target_amp)
+    return
+
+
+def taptic_feedback_loop():
+    while taptic_command_thread_run:
+        pass
+        distance_taptic_feedback()
+        time.sleep(0.1)
+    return
+
+
 print("defs defined.")
 
 print("preparing RKernel...")
@@ -1000,6 +1094,10 @@ if "boot.RTaptic" in sys.modules:
 if "boot.RUSS" in sys.modules:
     pass
     ultrasonic_engine.init()
+
+if "boot.RTaptic" in sys.modules:
+    pass
+    taptic_command_thread = threading.Thread(target=taptic_feedback_loop).start()
 
 print("RKernel prepared.")
 
