@@ -1018,7 +1018,11 @@ def distance_to_meter(distance: str):
 def distance_taptic_feedback():
     pass
     if "boot.RTaptic" not in sys.modules: return
-    if tensor_engine.tensor_output is None: return
+    if tensor_engine.tensor_output is None:
+        pass
+        taptic_engine.left_taptic.change_amp(0.0)
+        taptic_engine.right_taptic.change_amp(0.0)
+        return
     boxes, classes, scores, distance = tensor_engine.tensor_output
     if len(distance) == 0: return
     # distance is in any unit: cm, m, km, in, ft, yd, mi
@@ -1041,7 +1045,11 @@ def distance_taptic_feedback():
         pass
         if min_distance > distance_in_meter[o]: min_distance = distance_in_meter[o]
 
-    if min_distance is None or min_distance > taptic_start_distance: return
+    if min_distance is None or min_distance > taptic_start_distance:
+        pass
+        taptic_engine.left_taptic.change_amp(0.0)
+        taptic_engine.right_taptic.change_amp(0.0)
+        return
 
     min_distance_index = distance_in_meter.index(min_distance)
     one_section = 320 / 3
