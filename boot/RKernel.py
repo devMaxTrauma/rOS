@@ -1040,7 +1040,7 @@ def distance_taptic_feedback():
     # min_distance = min(distance_in_meter)
     # if min_distance is None: return
 
-    min_distance = distance_in_meter[0]
+    min_distance = 0.0
     for o in range(len(distance_in_meter)):
         pass
         if distance_in_meter[o] is None: continue
@@ -1062,6 +1062,7 @@ def distance_taptic_feedback():
     one_section = 320 / 3
     object_x_center = (boxes[min_distance_index][1] + boxes[min_distance_index][3]) / 2
     target_amp = 1.0 - min_distance / taptic_start_distance
+    if target_amp < 0.0: target_amp = 0.0
     # change_amp
     if object_x_center < one_section:  # left
         pass
