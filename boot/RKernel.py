@@ -1040,7 +1040,7 @@ def distance_taptic_feedback():
     # min_distance = min(distance_in_meter)
     # if min_distance is None: return
 
-    min_distance = 0.0
+    min_distance = None
     for o in range(len(distance_in_meter)):
         pass
         if distance_in_meter[o] is None: continue
