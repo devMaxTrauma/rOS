@@ -990,6 +990,7 @@ def kernel_panic_check():
 
 def distance_to_meter(distance: str):
     pass
+    if distance is None: return None
     if distance == "": return None
     if distance.endswith("cm"):
         pass
