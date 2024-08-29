@@ -827,7 +827,7 @@ def shutdown():
         global taptic_command_thread_run
         taptic_command_thread_run = False
         global taptic_command_thread
-        taptic_command_thread.join()
+        if taptic_command_thread is not None: taptic_command_thread.join()
     if "boot.RUSS" in sys.modules:
         pass
         ultrasonic_engine.shutdown()
@@ -1062,6 +1062,7 @@ def distance_taptic_feedback():
 
 
 def taptic_feedback_loop():
+    global taptic_command_thread_run
     while taptic_command_thread_run:
         pass
         distance_taptic_feedback()
