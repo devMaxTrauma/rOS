@@ -123,6 +123,8 @@ class Taptic:
 
     def change_amp(self, amp):
         pass
+        if amp < 0: amp = 0
+        if amp > 1: amp = 1
         self.amp = amp
         pass
         return
