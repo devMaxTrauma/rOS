@@ -1,3 +1,5 @@
+from unittest.mock import right
+
 try:
     pass
     import threading
@@ -179,12 +181,15 @@ def init():
     global pin_right_n
     right_taptic.set_pin(p_pin=pin_right_p, n_pin=pin_right_n)
 
-    # debug
-    left_taptic.change_amp(1.0)
-    left_taptic.change_freq(10)
+    left_taptic.change_freq(50)
+    right_taptic.change_freq(50)
 
-    right_taptic.change_amp(0.5)
-    right_taptic.change_freq(30)
+    # debug
+    # left_taptic.change_amp(1.0)
+    # left_taptic.change_freq(10)
+    #
+    # right_taptic.change_amp(0.5)
+    # right_taptic.change_freq(30)
 
     pass
     return
