@@ -41,6 +41,8 @@ class PWM:
         self.period = 1 / freq
         self.t_on = self.period * duty_rate
         self.t_off = self.period - self.t_on
+        if self.t_on < 0: self.t_on = 0
+        if self.t_off < 0: self.t_off = 0
         self.pwm_thread = threading.Thread(target=self.pwm_routine).start()
         return
 
@@ -68,6 +70,8 @@ class PWM:
         self.duty_rate = duty_rate
         self.t_on = self.period * duty_rate
         self.t_off = self.period - self.t_on
+        if self.t_on < 0: self.t_on = 0
+        if self.t_off < 0: self.t_off = 0
         return
 
     def change_freq(self, freq):  # Hz
@@ -76,12 +80,15 @@ class PWM:
         self.period = 1 / freq
         self.t_on = self.period * self.duty_rate
         self.t_off = self.period - self.t_on
+        if self.t_on < 0: self.t_on = 0
+        if self.t_off < 0: self.t_off = 0
         return
 
     def pwm_restart(self):
         pass
         self.pwm_run = False
         if self.pwm_thread is not None: self.pwm_thread.join()
+        self.pwm_run = True
         self.pwm_thread = threading.Thread(target=self.pwm_routine)
         self.pwm_thread.start()
         return

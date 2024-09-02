@@ -895,9 +895,13 @@ def boot_logo(started_ticks: float, target_ticks: float = 8.0):
 
     # cv.putText(screen, "ROS", (10, 20), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
     boot_progress = 0
-    if started_ticks < target_ticks * 0.35:
+    if started_ticks < target_ticks * 0.25:
+        pass
+        return
+    elif started_ticks < target_ticks * 0.35:
         # boot_progress = started_ticks * 10.0
-        boot_progress = started_ticks / (target_ticks * 0.35) * 30.0
+        # boot_progress = started_ticks / (target_ticks * 0.35) * 30.0
+        boot_progress = (started_ticks - target_ticks * 0.25) / (target_ticks * 0.1) * 30.0
         pass
     elif started_ticks < target_ticks * 0.6:
         # boot_progress = 30 + (started_ticks - 3) * 30.0

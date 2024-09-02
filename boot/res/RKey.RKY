@@ -48,4 +48,5 @@
 <name> USSRegionDisplayColorBlue </> <type> int </> <value> 92 </> <comment> USSRegionDisplayColorBlueNoticeUSS region display color blue </>
 <name> RaspberryPiCameraEye </> <type> str </> <value> right </> <comment> RaspberryPiCameraEyeNoticeRaspberry Pi camera eye </>
 <name> TapticEngineNegativeVoltEnabled </> <type> bool </> <value> True </> <comment> TapticEngineNegativeVoltEnabledNoticeTaptic engine negative volt is enabled or not </>
-<name> TapticFeedbackStartDistance </> <type> float </> <value> 1.0 </> <comment> TapticFeedbackStartDistanceNoticeTaptic feedback start distance in meter </>\
+<name> TapticFeedbackStartDistance </> <type> float </> <value> 1.0 </> <comment> TapticFeedbackStartDistanceNoticeTaptic feedback start distance in meter </>
+<name> ThisIsRos </> <type> str </> <value> Welcome to ROS </> <comment> easterEgg </>
