@@ -53,6 +53,7 @@ class PWM:
 
     def pwm_tick(self):
         pass
+        if self.t_on == 0 and self.t_off == 0: return
         if self.t_on != 0: self.line.set_value(1)
         time.sleep(self.t_on)
         if self.t_off != 0: self.line.set_value(0)

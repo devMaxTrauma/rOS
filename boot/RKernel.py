@@ -315,6 +315,7 @@ def calculate_distance(class_index: int, box):
     vision_distance_in_meter = object_average_width / ((box_end_x - box_start_x) / distance_calculate_constant)
     uss_distance_in_meter = 0.0
     if "boot.RUSS" in sys.modules: uss_distance_in_meter = ultrasonic_engine.output_distance
+    if uss_distance_in_meter == -1.0: can_calculated_by_uss = False
 
     likely_distance_in_meter = 0.0
     if not can_calculated_by_uss and not can_calculated_by_vision:
@@ -968,6 +969,8 @@ def rotate_180(frame):
 
 def kernel_panic_check():
     pass
+    # debug
+    # return True
     if hard_warning_icon is None:
         pass
         return True
@@ -1029,7 +1032,11 @@ def distance_taptic_feedback():
         taptic_engine.right_taptic.change_amp(0.0)
         return
     boxes, classes, scores, distance = tensor_engine.tensor_output
-    if len(distance) == 0: return
+    if len(distance) == 0:
+        pass
+        taptic_engine.left_taptic.change_amp(0.0)
+        taptic_engine.right_taptic.change_amp(0.0)
+        return
     # distance is in any unit: cm, m, km, in, ft, yd, mi
     taptic_start_distance = key_engine.get_key("TapticFeedbackStartDistance").get("value")
 
@@ -1071,12 +1078,14 @@ def distance_taptic_feedback():
     if object_x_center < one_section:  # left
         pass
         taptic_engine.left_taptic.change_amp(target_amp)
+        taptic_engine.right_taptic.change_amp(0.0)
     elif object_x_center < one_section * 2:  # center
         pass
         taptic_engine.left_taptic.change_amp(target_amp)
         taptic_engine.right_taptic.change_amp(target_amp)
     else:  # right
         pass
+        taptic_engine.left_taptic.change_amp(0.0)
         taptic_engine.right_taptic.change_amp(target_amp)
     return
 

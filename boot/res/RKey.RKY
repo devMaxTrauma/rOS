@@ -27,7 +27,7 @@
 <name> ARDisplayWidth </> <type> int </> <value> 800 </> <comment> ARDisplayWidthNoticeAR display width </>
 <name> ARDisplayHeight </> <type> int </> <value> 480 </> <comment> ARDisplayHeightNoticeAR display height </>
 <name> ARPreferredEye </> <type> str </> <value> right </> <comment> ARPreferredEyeNoticeAR preferred eye </>
-<name> ARMode </> <type> str </> <value> one eye </> <comment> ARModeFor auto or Both Eye </>
+<name> ARMode </> <type> str </> <value> both eye </> <comment> ARModeFor auto or Both Eye </>
 <name> ROSObjectDistanceCalculateConstantRaspberryPi </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantRaspberryPiNoticeROS object distance calculate constant for Raspberry Pi </>
 <name> ROSObjectDistanceCalculateConstantMacBookPro </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantMacBookProNoticeROS object distance calculate constant for MacBook Pro </>
 <name> ROSObjectDistanceCalculateConstantIphone </> <type> float </> <value> 500.0 </> <comment> ROSObjectDistanceCalculateConstantIphoneNoticeROS object distance calculate constant for iPhone </>
