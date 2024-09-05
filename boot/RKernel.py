@@ -81,6 +81,7 @@ try:
     pass
     import boot.RTensor as tensor_engine
 except ImportError:
+    pass
     make_error("1104", "RTensor not found.")
 except Exception as e:
     pass
@@ -1077,14 +1078,23 @@ def distance_taptic_feedback():
     # change_amp
     if object_x_center < one_section:  # left
         pass
+        # debug
+        print("left taptic feedback" + str(target_amp))
+        # debug end
         taptic_engine.left_taptic.change_amp(target_amp)
         taptic_engine.right_taptic.change_amp(0.0)
     elif object_x_center < one_section * 2:  # center
         pass
+        # debug
+        print("center taptic feedback" + str(target_amp))
+        # debug end
         taptic_engine.left_taptic.change_amp(target_amp)
         taptic_engine.right_taptic.change_amp(target_amp)
     else:  # right
         pass
+        # debug
+        print("right taptic feedback" + str(target_amp))
+        # debug end
         taptic_engine.left_taptic.change_amp(0.0)
         taptic_engine.right_taptic.change_amp(target_amp)
     return
@@ -1107,6 +1117,7 @@ tensor_engine.calculate_distance_function = calculate_distance
 notification_engine.tts_engine = tts_engine
 notification_engine.tts_enabled = key_engine.get_key("Notification TTS Enabled").get("value")
 if "boot.RBluetooth" in sys.modules:
+    pass
     print("callback set.")
     bluetooth_engine.connected_callback = bluetooth_connected_callback
     bluetooth_engine.recv_callback = bluetooth_signal_callback
