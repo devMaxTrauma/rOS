@@ -1033,6 +1033,7 @@ def distance_taptic_feedback():
         taptic_engine.right_taptic.change_amp(0.0)
         return
     boxes, classes, scores, distance = tensor_engine.tensor_output
+    boxes = boxes * [320, 320, 320, 320]
     if len(distance) == 0:
         pass
         taptic_engine.left_taptic.change_amp(0.0)
