@@ -1,4 +1,4 @@
-<name> ROSVersion </> <type> str </> <value> EdgeRunner.7.beta </> <comment> ROSVersion </>
+<name> ROSVersion </> <type> str </> <value> EdgeRunner.7 </> <comment> ROSVersion </>
 <name> ROSBootChimeEnabled </> <type> bool </> <value> True </> <comment> ROSBootChimeEnabledNoticeROS boot chime is enabled or not </>
 <name> ROSSplashScreenTime </> <type> float </> <value> 6.0 </> <comment> ROSSplashScreenTimeNoticeROS splash screen time </>
 <name> ROSIsOn </> <type> bool </> <value> False </> <comment> ROSIsOnNoticeROS is shutdown properly </>
