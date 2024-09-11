@@ -17,7 +17,7 @@ except ImportError:
     pass
     raise ImportError("threading not found. Please install it using 'pip install threading'.")
 
-chip = gpiod.Chip("gpiochip4")
+chip = gpiod.Chip("gpiochip0")
 
 lines = []
 pwms = {}
