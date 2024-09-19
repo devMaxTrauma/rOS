@@ -1,4 +1,4 @@
-<name> ROSVersion </> <type> str </> <value> EdgeRunner.7 </> <comment> ROSVersion </>
+<name> ROSVersion </> <type> str </> <value> EdgeRunner.8.beta </> <comment> ROSVersion </>
 <name> ROSBootChimeEnabled </> <type> bool </> <value> True </> <comment> ROSBootChimeEnabledNoticeROS boot chime is enabled or not </>
 <name> ROSSplashScreenTime </> <type> float </> <value> 6.0 </> <comment> ROSSplashScreenTimeNoticeROS splash screen time </>
 <name> ROSIsOn </> <type> bool </> <value> False </> <comment> ROSIsOnNoticeROS is shutdown properly </>
@@ -50,3 +50,12 @@
 <name> TapticEngineNegativeVoltEnabled </> <type> bool </> <value> True </> <comment> TapticEngineNegativeVoltEnabledNoticeTaptic engine negative volt is enabled or not </>
 <name> TapticFeedbackStartDistance </> <type> float </> <value> 1.0 </> <comment> TapticFeedbackStartDistanceNoticeTaptic feedback start distance in meter </>
 <name> ThisIsRos </> <type> str </> <value> Welcome to ROS </> <comment> easterEgg </>
+<name> ColorFilterMode </> <type> str </> <value> sync mobile </> <comment> ColorFilterModeNoticeColor filter mode </>
+<name> ColorFilterRedBoost </> <type> int </> <value> 0 </> <comment> ColorFilterRedBoostNoticeColor filter red boost </>
+<name> ColorFilterGreenBoost </> <type> int </> <value> 0 </> <comment> ColorFilterGreenBoostNoticeColor filter green boost </>
+<name> ColorFilterBlueBoost </> <type> int </> <value> 0 </> <comment> ColorFilterBlueBoostNoticeColor filter blue boost </>
+<name> ColorFilterRedRatio </> <type> float </> <value> 1.0 </> <comment> ColorFilterRedRatioNoticeColor filter red ratio </>
+<name> ColorFilterGreenRatio </> <type> float </> <value> 1.0 </> <comment> ColorFilterGreenRatioNoticeColor filter green ratio </>
+<name> ColorFilterBlueRatio </> <type> float </> <value> 1.0 </> <comment> ColorFilterBlueRatioNoticeColor filter blue ratio </>
+<name> BlueLightFilterEnabled </> <type> bool </> <value> True </> <comment> BlueLightFilterEnabledNoticeBlue light filter is enabled or not </>
+<name> BlueLightFilterStrength </> <type> float </> <value> 0.2 </> <comment> BlueLightFilterStrengthNoticeBlue light filter strength </>

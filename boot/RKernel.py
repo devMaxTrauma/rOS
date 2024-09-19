@@ -146,6 +146,12 @@ try:
 except ImportError:
     pass
     make_error("1112", "RTaptic not found.")
+try:
+    pass
+    import boot.RFilter as filter_engine
+except ImportError:
+    pass
+    make_error("1113", "RFilter not found.")
 
 print("RKernel imports loaded.")
 
@@ -261,6 +267,11 @@ def get_frame():
         pass
         notification_engine.add_notification("hard_warning.png", "low brightness detected",
                                              "저조도 감지. 사용자의 즉각적인 주의가 필요합니다.")
+    elif frame_average_brightness >= 230 and notification_engine.get_notification(
+            message="high brightness detected") is None:
+        pass
+        notification_engine.add_notification("hard_warning.png", "high brightness detected",
+                                             "고조도 감지. 사용자의 즉각적인 주의가 필요합니다.")
 
     # make frame 320x320
     return get_320_320_frame(frame)
@@ -703,6 +714,34 @@ def render_notifications(frame, notifications):
     return frame
 
 
+# def color_adjust(frame):
+#     pass
+#     color_adjust_mode = key_engine.get_key("ColorFilterMode").get("value")
+#     if color_adjust_mode == "sync mobile":
+#         pass
+#     elif color_adjust_mode == "custom":
+#         pass
+#         red_boost = key_engine.get_key("ColorFilterRedBoost").get("value")
+#         green_boost = key_engine.get_key("ColorFilterGreenBoost").get("value")
+#         blue_boost = key_engine.get_key("ColorFilterBlueBoost").get("value")
+#
+#         red_ratio = key_engine.get_key("ColorFilterRedRatio").get("value")
+#         green_ratio = key_engine.get_key("ColorFilterGreenRatio").get("value")
+#         blue_ratio = key_engine.get_key("ColorFilterBlueRatio").get("value")
+#
+#         # frame[:, :, 2] = frame[:, :, 2] * red_ratio + red_boost
+#         # frame[:, :, 1] = frame[:, :, 1] * green_ratio + green_boost
+#         # frame[:, :, 0] = frame[:, :, 0] * blue_ratio + blue_boost
+#         # for x in range(320):
+#         #     pass
+#         #     for y in range(320):
+#         #         pass
+#         #         frame[y, x, 2] = frame[y, x, 2] * red_ratio + red_boost
+#         #         frame[y, x, 1] = frame[y, x, 1] * green_ratio + green_boost
+#         #         frame[y, x, 0] = frame[y, x, 0] * blue_ratio + blue_boost
+#     return frame
+
+
 def render_tensor_and_etc():
     pass
     global raw_screen
@@ -757,6 +796,10 @@ def render_tensor_and_etc():
         #              (208, 252, 92), 1)
         cv.rectangle(new_frame, (uss_region_start_x, uss_region_start_y), (uss_region_end_x, uss_region_end_y),
                      (blue, green, red), -1)
+
+    # filter_engine.color_adjust(new_frame)
+    # new_frame = filter_engine.color_adjust(new_frame)
+
     global screen
     screen = new_frame
     return new_frame
@@ -772,10 +815,10 @@ def tick_screen():
     make_window()
     if key_engine.get_key("ROSARDisplayEnabled").get("value"):
         pass
-        cv.imshow("ROS", make_ar_frame(screen))
+        cv.imshow("ROS", make_ar_frame(filter_engine.color_adjust(screen)))
     else:
         pass
-        cv.imshow("ROS", screen)
+        cv.imshow("ROS", filter_engine.color_adjust(screen))
 
     fps_engine.add_candidate_main_fps()
     if fps_engine.get_main_screen_fps() < 20 and notification_engine.get_notification(
@@ -881,6 +924,18 @@ def bluetooth_signal_callback(data):
         sound_engine.stop(find_my_keep_sounding_channel)
         find_my_notification.display_duration = 0
         # pass
+    elif data == b"normal":
+        pass
+        filter_engine.mobile_filter = "normal"
+    elif data == b"red":
+        pass
+        filter_engine.mobile_filter = "red_weak"
+    elif data == b"blue":
+        pass
+        filter_engine.mobile_filter = "blue_weak"
+    elif data == b"all":
+        pass
+        filter_engine.mobile_filter = "all_weak"
     return
 
 
@@ -974,24 +1029,31 @@ def kernel_panic_check():
     # return True
     if hard_warning_icon is None:
         pass
+        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no hard_warning_icon", "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
         return True
     if warning_icon is None:
         pass
+        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no warning_icon", "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
         return True
     if black_screen is None:
         pass
+        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no black_screen", "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
         return True
     if kernel_panic_screen is None:
         pass
+        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no kernel_panic_screen", "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
         return True
     if splash_screen is None:
         pass
+        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no splash_screen", "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
         return True
     if raw_screen is None:
         pass
+        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no raw_screen", "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
         return True
     if tensor_engine.model is None:
         pass
+        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no model", "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
         return True
     return False
 
@@ -1124,6 +1186,7 @@ if "boot.RBluetooth" in sys.modules:
     bluetooth_engine.recv_callback = bluetooth_signal_callback
 camera = get_camera()
 sound_engine.overall_volume = key_engine.get_key("SoundVolume").get("value")
+filter_engine.key_engine = key_engine
 if "boot.RGPIOD" in sys.modules:
     pass
     if "boot.RTaptic" in sys.modules: taptic_engine.gpio_engine = gpio_engine
