@@ -171,6 +171,7 @@ hard_warning_icon = cv.imread("boot/res/hard_warning.png")
 warning_icon = cv.imread("boot/res/warning.png")
 taptic_command_thread = None
 taptic_command_thread_run = True
+color_weakness_compensation_notification = None
 print("variables defined.")
 
 print("defining defs...")
@@ -907,6 +908,7 @@ def bluetooth_signal_callback(data):
     global find_my_sounding_one_channel
     global find_my_keep_sounding_channel
     global find_my_notification
+    global color_weakness_compensation_notification
     if data == b"a":
         pass
         sound_engine.stop(find_my_sounding_one_channel)
@@ -927,15 +929,27 @@ def bluetooth_signal_callback(data):
     elif data == b"normal":
         pass
         filter_engine.mobile_filter = "normal"
+        if color_weakness_compensation_notification is not None: color_weakness_compensation_notification.display_duration = 0
+        color_weakness_compensation_notification = notification_engine.add_notification("warning.png", "Color weakness compensation disabled.",
+                                             "색약 보정이 비활성화 되었습니다.")
     elif data == b"red":
         pass
         filter_engine.mobile_filter = "red_weak"
+        if color_weakness_compensation_notification is not None: color_weakness_compensation_notification.display_duration = 0
+        color_weakness_compensation_notification = notification_engine.add_notification("warning.png", "Color Red weakness compensation enabled.",
+                                                "적색약 보정이 활성화 되었습니다.")
     elif data == b"blue":
         pass
         filter_engine.mobile_filter = "blue_weak"
+        if color_weakness_compensation_notification is not None: color_weakness_compensation_notification.display_duration = 0
+        color_weakness_compensation_notification = notification_engine.add_notification("warning.png", "Color Blue weakness compensation enabled.",
+                                                "청색약 보정이 활성화 되었습니다.")
     elif data == b"all":
         pass
         filter_engine.mobile_filter = "all_weak"
+        if color_weakness_compensation_notification is not None: color_weakness_compensation_notification.display_duration = 0
+        color_weakness_compensation_notification = notification_engine.add_notification("warning.png", "All Color weakness compensation enabled.",
+                                                "전체 색약 보정이 활성화 되었습니다. 흑백으로 나타납니다.")
     return
 
 
@@ -1029,31 +1043,38 @@ def kernel_panic_check():
     # return True
     if hard_warning_icon is None:
         pass
-        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no hard_warning_icon", "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
+        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no hard_warning_icon",
+                                             "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
         return True
     if warning_icon is None:
         pass
-        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no warning_icon", "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
+        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no warning_icon",
+                                             "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
         return True
     if black_screen is None:
         pass
-        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no black_screen", "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
+        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no black_screen",
+                                             "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
         return True
     if kernel_panic_screen is None:
         pass
-        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no kernel_panic_screen", "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
+        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no kernel_panic_screen",
+                                             "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
         return True
     if splash_screen is None:
         pass
-        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no splash_screen", "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
+        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no splash_screen",
+                                             "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
         return True
     if raw_screen is None:
         pass
-        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no raw_screen", "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
+        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no raw_screen",
+                                             "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
         return True
     if tensor_engine.model is None:
         pass
-        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no model", "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
+        notification_engine.add_notification("hard_warning.png", "Kernel Panic, no model",
+                                             "장비를 당장 벗으십시요. 커널이 패닉 상태입니다.")
         return True
     return False
 
