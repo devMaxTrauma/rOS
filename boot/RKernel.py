@@ -20,42 +20,63 @@ try:
 except ImportError:
     pass
     make_error("1001", "cv2 not found.")
+except Exception as e:
+    pass
+    make_error("1001-1", str(e))
 try:
     pass
     import time
 except ImportError:
     pass
     make_error("1002", "time not found.")
+except Exception as e:
+    pass
+    make_error("1002-1", str(e))
 try:
     pass
     import picamera2
 except ImportError:
     pass
     print("Picamera2 not found.")
+except Exception as e:
+    pass
+    make_error("1003", str(e))
 try:
     pass
     import threading
 except ImportError:
     pass
     make_error("1005", "threading not found.")
+except Exception as e:
+    pass
+    make_error("1005-1", str(e))
 try:
     pass
     import numpy as np
 except ImportError:
     pass
     make_error("1006", "numpy not found.")
+except Exception as e:
+    pass
+    make_error("1006-1", str(e))
 try:
     pass
     import sys
 except ImportError:
     pass
     make_error("1007", "sys not found.")
+except Exception as e:
+    pass
+    make_error("1007-1", str(e))
 try:
     pass
     import os
 except ImportError:
     pass
     make_error("1008", "os not found.")
+except Exception as e:
+    pass
+    make_error("1008-1", str(e))
 print("Third Party Imports loaded.")
 
 print("Loading RKernel imports...")
@@ -65,18 +86,27 @@ try:
 except ImportError:
     pass
     make_error("1101", "RKey not found.")
+except Exception as e:
+    pass
+    make_error("1101-1", str(e))
 try:
     pass
     import boot.RSound as sound_engine
 except ImportError:
     pass
     make_error("1102", "RSound not found.")
+except Exception as e:
+    pass
+    make_error("1102-1", str(e))
 try:
     pass
     import boot.RFPS as fps_engine
 except ImportError:
     pass
     make_error("1103", "RFPS not found.")
+except Exception as e:
+    pass
+    make_error("1103-1", str(e))
 try:
     pass
     import boot.RTensor as tensor_engine
@@ -92,30 +122,45 @@ try:
 except ImportError:
     pass
     make_error("1105", "RLabel not found.")
+except Exception as e:
+    pass
+    make_error("1105-1", str(e))
 try:
     pass
     import boot.RColor as color_engine
 except ImportError:
     pass
     make_error("1106", "RColor not found.")
+except Exception as e:
+    pass
+    make_error("1106-1", str(e))
 try:
     pass
     import boot.RBluetooth as bluetooth_engine
 except ImportError as e:
     pass
     print("RBluetooth not found.")
+except Exception as e:
+    pass
+    make_error("1107", str(e))
 try:
     pass
     import boot.RNotification as notification_engine
 except ImportError:
     pass
     make_error("1108", "RNotification not found.")
+except Exception as e:
+    pass
+    make_error("1108-1", str(e))
 try:
     pass
     import boot.RTTS as tts_engine
 except ImportError:
     pass
     make_error("1109", "RTTS not found.")
+except Exception as e:
+    pass
+    make_error("1109-1", str(e))
 # try:
 #     import boot.RGPIO as gpio_engine
 # except ImportError:
@@ -134,24 +179,36 @@ try:
 except ImportError:
     pass
     print("RGPIOD not found.")
+except Exception as e:
+    pass
+    make_error("1110", str(e))
 try:
     pass
     if "boot.RGPIOD" in sys.modules: import boot.RUSS as ultrasonic_engine
 except ImportError:
     pass
     make_error("1111", "RUSS not found.")
+except Exception as e:
+    pass
+    make_error("1111-1", str(e))
 try:
     pass
     if "boot.RGPIOD" in sys.modules: import boot.RTaptic as taptic_engine
 except ImportError:
     pass
     make_error("1112", "RTaptic not found.")
+except Exception as e:
+    pass
+    make_error("1112-1", str(e))
 try:
     pass
     import boot.RFilter as filter_engine
 except ImportError:
     pass
     make_error("1113", "RFilter not found.")
+except Exception as e:
+    pass
+    make_error("1113-1", str(e))
 
 print("RKernel imports loaded.")
 
