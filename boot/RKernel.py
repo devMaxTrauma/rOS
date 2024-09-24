@@ -320,12 +320,12 @@ def get_frame():
     frame_average_green = np.average(frame[:, :, 1])
     frame_average_blue = np.average(frame[:, :, 0])
     frame_average_brightness = (frame_average_red + frame_average_green + frame_average_blue) / 3
-    if frame_average_brightness < 60 and notification_engine.get_notification(
+    if frame_average_brightness < 5 and notification_engine.get_notification(
             message="low brightness detected") is None:
         pass
         notification_engine.add_notification("hard_warning.png", "low brightness detected",
                                              "저조도 감지. 사용자의 즉각적인 주의가 필요합니다.")
-    elif frame_average_brightness >= 230 and notification_engine.get_notification(
+    elif frame_average_brightness >= 250 and notification_engine.get_notification(
             message="high brightness detected") is None:
         pass
         notification_engine.add_notification("hard_warning.png", "high brightness detected",
@@ -879,12 +879,12 @@ def tick_screen():
         cv.imshow("ROS", filter_engine.color_adjust(screen))
 
     fps_engine.add_candidate_main_fps()
-    if fps_engine.get_main_screen_fps() < 20 and notification_engine.get_notification(
+    if fps_engine.get_main_screen_fps() < 10 and notification_engine.get_notification(
             message="Low System FPS detected.") is None:
         pass
         notification_engine.add_notification("warning.png", "Low System FPS detected.",
                                              "시스템 FPS가 낮습니다. 늦은 반응에 대비 해주세요.")
-    if fps_engine.get_tensor_fps() < 15 and notification_engine.get_notification(
+    if fps_engine.get_tensor_fps() < 6 and notification_engine.get_notification(
             message="Low Tensor FPS detected.") is None:
         pass
         notification_engine.add_notification("warning.png", "Low Tensor FPS detected.", "텐서 FPS가 낮습니다. 늦은 반응에 대비 해주세요.")
